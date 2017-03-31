@@ -39,7 +39,7 @@ import initDebug from 'debug'
 const awesomeLogger = initDebug('my-project:knex')
 const knexOptions = {} // Your knex config
 const knex = createKnex(knexOptions)
-knexTinyLogger(knex, { logger })
+knexTinyLogger(knex, { logger: awesomeLogger })
 ```
 
 ## License
