@@ -44,4 +44,4 @@ knexTinyLogger(knex, { logger })
 
 ## License
 
-[MIT]('./LICENSE')
+[MIT](LICENSE.md)
