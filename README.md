@@ -1,6 +1,6 @@
 # knex-tiny-logger
 
-[![Github All Releases](https://img.shields.io/github/downloads/knex-tiny-logger/knex-tiny-logger/total.svg?style=flat-square)]()
+[![Github All Releases](https://img.shields.io/github/downloads/knex-tiny-logger/knex-tiny-logger/total.svg?style=flat-square)](https://npmjs.com/package/knex-tiny-logger)
 [![](https://img.shields.io/npm/v/knex-tiny-logger.svg?style=flat-square)](https://npmjs.com/package/knex-tiny-logger)
 [![](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square)](https://standardjs.com)
 
