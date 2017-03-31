@@ -16,7 +16,7 @@ $ yarn add knex-tiny-logger
 
 Decorate knex with `knex-tiny-logger`:
 
-```
+```js
 import createKnex from 'knex'
 import knexTinyLogger from 'knex-tiny-logger'
 
@@ -31,7 +31,7 @@ knexTinyLogger(knex)
 ## Advanced usage
 
 By default `knex-tiny-logger` uses `console.log`, but you can specify any logger which your prefer:
-```
+```js
 import createKnex from 'knex'
 import knexTinyLogger from 'knex-tiny-logger'
 import initDebug from 'debug'
