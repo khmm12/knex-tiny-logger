@@ -1,0 +1,40 @@
+{
+  "name": "knex-tiny-logger",
+  "version": "1.0.2",
+  "description": "Tiny logger for knex",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/khmm12/knex-tiny-logger.git"
+  },
+  "author": "Maixm Khvatalin <khmm12@gmail.com> (http://github.com/khmm12)",
+  "files": [
+    "lib",
+    "src"
+  ],
+  "keywords": [
+    "knex",
+    "logger"
+  ],
+  "license": "MIT",
+  "main": "lib/index.js",
+  "engines": {
+    "node": ">=6"
+  },
+  "scripts": {
+    "prepublish": "yarn test && yarn build",
+    "test": "eslint src",
+    "build": "babel src --out-dir lib"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.24.0",
+    "babel-preset-env": "^1.3.2",
+    "eslint": "^3.18.0",
+    "eslint-config-standard": "^7.1.0",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-promise": "^3.5.0",
+    "eslint-plugin-standard": "^2.1.1"
+  },
+  "dependencies": {
+    "chalk": "^1.1.3"
+  }
+}
