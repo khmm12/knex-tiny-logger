@@ -14,18 +14,20 @@ Install the package:
 $ yarn add knex-tiny-logger
 ```
 
-Decorate knex with `knex-tiny-logger`:
+Apply `knex-tiny-logger` to `knex` instance:
 
 ```js
 import createKnex from 'knex'
 import knexTinyLogger from 'knex-tiny-logger'
 
 const knexOptions = {} // Your knex config
-const knex = knexTinyLogger(createKnex(knexOptions))
-
-// or
 const knex = createKnex(knexOptions)
 knexTinyLogger(knex)
+
+// alternative
+// knex-tiny-logger returns knex instance
+// so you can do like this
+const knex = knexTinyLogger(createKnex(knexOptions))
 ```
 
 ## Advanced usage
