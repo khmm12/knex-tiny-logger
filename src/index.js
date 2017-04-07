@@ -15,6 +15,9 @@ export default function knexTinyLogger (knex, { logger = console.log } = {}) {
     const startTime = process.hrtime()
     queries[queryId] = { sql, bindings, startTime }
   })
+  .on('query-error', (_error, { __knexQueryUid: queryId }) => {
+    delete queries[queryId]
+  })
   .on('query-response', (response, { __knexQueryUid: queryId }) => {
     const { sql, bindings, startTime } = queries[queryId]
     delete queries[queryId]
