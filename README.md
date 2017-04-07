@@ -1,10 +1,11 @@
 # knex-tiny-logger
 
-[![Github All Releases](https://img.shields.io/github/downloads/knex-tiny-logger/knex-tiny-logger/total.svg?style=flat-square)](https://npmjs.com/package/knex-tiny-logger)
 [![](https://img.shields.io/npm/v/knex-tiny-logger.svg?style=flat-square)](https://npmjs.com/package/knex-tiny-logger)
 [![](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square)](https://standardjs.com)
 
 > Zero config queries logger for knex
+
+![](https://cloud.githubusercontent.com/assets/4437249/24814454/5215bd9c-1bda-11e7-8574-5f93042395dd.png)
 
 ## Usage
 
