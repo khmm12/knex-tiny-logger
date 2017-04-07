@@ -1,6 +1,6 @@
 {
   "name": "knex-tiny-logger",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Tiny logger for knex",
   "repository": {
     "type": "git",
