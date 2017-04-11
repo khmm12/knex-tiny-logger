@@ -43,7 +43,7 @@ export default function knexTinyLogger (knex, { logger = console.log } = {}) {
 
 function insertBindingsToSQL (sql, bindings) {
   return sql.split('?').reduce((memo, part, index) => {
-    const binding = bindings[index] ? bindings[index] : ''
+    const binding = bindings[index] ? JSON.stringify(bindings[index]) : ''
     return memo + part + binding
   }, '')
 }
