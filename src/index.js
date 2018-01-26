@@ -16,9 +16,14 @@ export default function knexTinyLogger (knex, { logger = console.log } = {}) {
     queries[queryId] = { sql, bindings, startTime }
   })
   .on('query-error', (_error, { __knexQueryUid: queryId }) => {
-    delete queries[queryId]
+    logQuery(queryId, 'red')
   })
   .on('query-response', (response, { __knexQueryUid: queryId }) => {
+    logQuery(queryId)
+  })
+  return knex
+
+  function logQuery (queryId, sqlOutputColor = 'cyan') {
     const { sql, bindings, startTime } = queries[queryId]
     delete queries[queryId]
 
@@ -27,10 +32,9 @@ export default function knexTinyLogger (knex, { logger = console.log } = {}) {
 
     logger('%s %s',
       chalk.magenta(`SQL (${duration.toFixed(3)} ms)`),
-      chalk.cyan(sqlRequest)
+      chalk[sqlOutputColor](sqlRequest)
     )
-  })
-  return knex
+  }
 }
 
 /**
