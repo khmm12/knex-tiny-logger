@@ -46,10 +46,12 @@ export default function knexTinyLogger (knex, { logger = console.log } = {}) {
  */
 
 function insertBindingsToSQL (sql, bindings) {
-  return sql.split('?').reduce((memo, part, index) => {
-    const binding = bindings[index] ? JSON.stringify(bindings[index]) : ''
-    return memo + part + binding
-  }, '')
+  return sql.replace(/\$\d+/g, replacer)
+
+  function replacer (match) {
+    const position = parseInt(match.replace('$', ''), 10)
+    return bindings[position - 1] ? JSON.stringify(bindings[position - 1]) : match
+  }
 }
 
 /**
