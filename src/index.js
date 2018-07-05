@@ -1,5 +1,10 @@
 import chalk from 'chalk'
 
+const COLORS = {
+  success: 'cyan',
+  error: 'red'
+}
+
 /**
  * Decorate `knex` instance with logger
  *
@@ -9,48 +14,32 @@ import chalk from 'chalk'
  * @return {Object} knex - knex instance
  */
 
-export default function knexTinyLogger (knex, { logger = console.log } = {}) {
-  const queries = {}
-  knex.on('query', ({ sql, bindings, __knexQueryUid: queryId }) => {
-    const startTime = executionTime()
-    queries[queryId] = { sql, bindings, startTime }
-  })
-  .on('query-error', (_error, { __knexQueryUid: queryId }) => {
-    logQuery(queryId, 'red')
-  })
-  .on('query-response', (response, { __knexQueryUid: queryId }) => {
-    logQuery(queryId)
-  })
+export default function knexTinyLogger (knex, { logger = console.log, bindings: withBindings = true } = {}) {
+  const queries = new Map()
+  const print = makeQueryPrinter(knex, { logger, withBindings })
+
   return knex
+    .on('query', handleQuery)
+    .on('query-error', handleQueryError)
+    .on('query-response', handleQueryResponse)
 
-  function logQuery (queryId, sqlOutputColor = 'cyan') {
-    const { sql, bindings, startTime } = queries[queryId]
-    delete queries[queryId]
-
-    const duration = executionTime(startTime)
-    const sqlRequest = insertBindingsToSQL(sql, bindings)
-
-    logger('%s %s',
-      chalk.magenta(`SQL (${duration.toFixed(3)} ms)`),
-      chalk[sqlOutputColor](sqlRequest)
-    )
+  function handleQuery ({ __knexQueryUid: queryId, sql, bindings }) {
+    const startTime = executionTime()
+    queries.set(queryId, { sql, bindings, startTime })
   }
-}
 
-/**
- * Return SQL string with inserted bindings
- *
- * @param {String} sql - sql string without bindings
- * @param {Array} bindings
- * @return {String}
- */
+  function handleQueryError (_error, { __knexQueryUid: queryId }) {
+    const { sql, bindings, startTime } = queries.get(queryId)
+    const duration = executionTime(startTime)
+    queries.delete(queryId)
+    print({ sql, bindings, duration }, COLORS.error)
+  }
 
-function insertBindingsToSQL (sql, bindings) {
-  return sql.replace(/\$\d+/g, replacer)
-
-  function replacer (match) {
-    const position = parseInt(match.replace('$', ''), 10)
-    return bindings[position - 1] ? JSON.stringify(bindings[position - 1]) : match
+  function handleQueryResponse (_response, { __knexQueryUid: queryId }) {
+    const { sql, bindings, startTime } = queries.get(queryId)
+    const duration = executionTime(startTime)
+    queries.delete(queryId)
+    print({ sql, bindings, duration }, COLORS.success)
   }
 }
 
@@ -72,5 +61,16 @@ function executionTime (startTime) {
     return duration
   } else {
     return process.hrtime()
+  }
+}
+
+function makeQueryPrinter (knex, { logger, withBindings }) {
+  return function print ({ sql, bindings, duration }, color) {
+    const sqlRequest = knex.client._formatQuery(sql, withBindings ? bindings : null)
+
+    logger('%s %s',
+      chalk.magenta(`SQL (${duration.toFixed(3)} ms)`),
+      chalk[color](sqlRequest)
+    )
   }
 }
