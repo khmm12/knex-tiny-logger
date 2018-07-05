@@ -1,3 +1,7 @@
 {
-  "extends": ["standard", "plugin:import/errors"]
+  "extends": ["standard", "plugin:import/errors"],
+  "parser": "babel-eslint",
+  "plugins": [
+    "flowtype"
+  ]
 }

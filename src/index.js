@@ -1,8 +1,22 @@
+// @flow
 import chalk from 'chalk'
+import * as executionTime from './utils/execution-time'
 
-const COLORS = {
-  success: 'cyan',
-  error: 'red'
+export type KnexTinyLogger$Options = {
+  logger?: Function,
+  bindings?: boolean
+}
+
+type KnexTinyLogger$Query = {
+  sql: string,
+  bindings: any,
+  startTime: [number, number]
+}
+
+const COLORIZE = {
+  primary: chalk.magenta,
+  error: chalk.red,
+  success: chalk.cyan
 }
 
 /**
@@ -11,11 +25,13 @@ const COLORS = {
  * @param {Object} knex - knex instance
  * @param {Object} options
  * @param {Function} [options.logger=console.log]
+ * @param {Boolean} [options.bindings=true]
  * @return {Object} knex - knex instance
  */
 
-export default function knexTinyLogger (knex, { logger = console.log, bindings: withBindings = true } = {}) {
-  const queries = new Map()
+export default function knexTinyLogger (knex: any, options?: KnexTinyLogger$Options = {}) {
+  const { logger = console.log, bindings: withBindings = true } = options
+  const queries: Map<string, KnexTinyLogger$Query> = new Map()
   const print = makeQueryPrinter(knex, { logger, withBindings })
 
   return knex
@@ -24,53 +40,39 @@ export default function knexTinyLogger (knex, { logger = console.log, bindings: 
     .on('query-response', handleQueryResponse)
 
   function handleQuery ({ __knexQueryUid: queryId, sql, bindings }) {
-    const startTime = executionTime()
+    const startTime = executionTime.start()
     queries.set(queryId, { sql, bindings, startTime })
   }
 
   function handleQueryError (_error, { __knexQueryUid: queryId }) {
-    const { sql, bindings, startTime } = queries.get(queryId)
-    const duration = executionTime(startTime)
-    queries.delete(queryId)
-    print({ sql, bindings, duration }, COLORS.error)
+    withQuery(queryId, ({ sql, bindings, duration }) => {
+      print({ sql, bindings, duration }, COLORIZE.error)
+    })
   }
 
   function handleQueryResponse (_response, { __knexQueryUid: queryId }) {
-    const { sql, bindings, startTime } = queries.get(queryId)
-    const duration = executionTime(startTime)
-    queries.delete(queryId)
-    print({ sql, bindings, duration }, COLORS.success)
+    withQuery(queryId, ({ sql, bindings, duration }) => {
+      print({ sql, bindings, duration }, COLORIZE.success)
+    })
   }
-}
 
-/**
- * Return duration in ms based `startTime`
- *
- * @example
- * const startTime = executionTime()
- * const duration = executionTime(startTime)
- *
- * @param {Object} [startTime]
- * @return {Number} duration in ms
- */
-
-function executionTime (startTime) {
-  if (startTime) {
-    const diff = process.hrtime(startTime)
-    const duration = diff[0] * 1e3 + diff[1] * 1e-6
-    return duration
-  } else {
-    return process.hrtime()
+  function withQuery (queryId, fn) {
+    const query = queries.get(queryId)
+    queries.delete(queryId)
+    if (!query) throw new Error('Query disappeared')
+    const { sql, bindings, startTime } = query
+    const duration = executionTime.stop(startTime)
+    fn({ sql, bindings, duration })
   }
 }
 
 function makeQueryPrinter (knex, { logger, withBindings }) {
-  return function print ({ sql, bindings, duration }, color) {
+  return function print ({ sql, bindings, duration }, colorize: Function) {
     const sqlRequest = knex.client._formatQuery(sql, withBindings ? bindings : null)
 
     logger('%s %s',
-      chalk.magenta(`SQL (${duration.toFixed(3)} ms)`),
-      chalk[color](sqlRequest)
+      COLORIZE.primary(`SQL (${duration.toFixed(3)} ms)`),
+      colorize(sqlRequest)
     )
   }
 }
