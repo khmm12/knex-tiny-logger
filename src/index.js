@@ -16,9 +16,14 @@ export default function knexTinyLogger (knex, { logger = console.log } = {}) {
     queries[queryId] = { sql, bindings, startTime }
   })
   .on('query-error', (_error, { __knexQueryUid: queryId }) => {
-    delete queries[queryId]
+    logQuery(queryId, 'red')
   })
   .on('query-response', (response, { __knexQueryUid: queryId }) => {
+    logQuery(queryId)
+  })
+  return knex
+
+  function logQuery (queryId, sqlOutputColor = 'cyan') {
     const { sql, bindings, startTime } = queries[queryId]
     delete queries[queryId]
 
@@ -27,10 +32,9 @@ export default function knexTinyLogger (knex, { logger = console.log } = {}) {
 
     logger('%s %s',
       chalk.magenta(`SQL (${duration.toFixed(3)} ms)`),
-      chalk.cyan(sqlRequest)
+      chalk[sqlOutputColor](sqlRequest)
     )
-  })
-  return knex
+  }
 }
 
 /**
@@ -42,10 +46,12 @@ export default function knexTinyLogger (knex, { logger = console.log } = {}) {
  */
 
 function insertBindingsToSQL (sql, bindings) {
-  return sql.split('?').reduce((memo, part, index) => {
-    const binding = bindings[index] ? JSON.stringify(bindings[index]) : ''
-    return memo + part + binding
-  }, '')
+  return sql.replace(/\$\d+/g, replacer)
+
+  function replacer (match) {
+    const position = parseInt(match.replace('$', ''), 10)
+    return bindings[position - 1] ? JSON.stringify(bindings[position - 1]) : match
+  }
 }
 
 /**
