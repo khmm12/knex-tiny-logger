@@ -45,6 +45,11 @@ const knex = createKnex(knexOptions)
 knexTinyLogger(knex, { logger: awesomeLogger })
 ```
 
+Also you can disable bindings:
+```js
+knexTinyLogger(knex, { bindings: false })
+```
+
 ## License
 
 [MIT](LICENSE.md)
