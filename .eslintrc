@@ -1,5 +1,11 @@
 {
-  "extends": ["standard", "plugin:import/errors"],
+  "extends": [
+    "plugin:prettier/recommended",
+    "plugin:import/errors",
+    "standard",
+    "prettier",
+    "prettier/standard"
+  ],
   "parser": "babel-eslint",
   "plugins": [
     "flowtype"

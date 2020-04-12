@@ -8,8 +8,8 @@
   },
   "author": "Maixm Khvatalin <khmm12@gmail.com> (http://github.com/khmm12)",
   "files": [
-    "lib",
-    "src"
+    "/lib",
+    "/typings/index.d.ts"
   ],
   "keywords": [
     "knex",
@@ -18,29 +18,49 @@
   "license": "MIT",
   "main": "lib/index.js",
   "engines": {
-    "node": ">=6"
+    "node": ">=10"
   },
+  "typings": "typings",
+  "sideEffects": false,
   "scripts": {
-    "prepublish": "yarn test && yarn build",
-    "test": "eslint src",
-    "build": "babel src --out-dir lib"
+    "test": "run-p --aggregate-output test:*",
+    "test:lint": "eslint src",
+    "test:flow": "flow check",
+    "test:ts": "dtslint ./typings",
+    "build": "run-s build:clean build:cjs build:flow",
+    "build:clean": "rm -rf lib",
+    "build:cjs": "babel src --ignore src/__typings__ --out-dir lib",
+    "build:flow": "flow-copy-source --ignore '__typings__/*.js' src lib",
+    "precommit": "test"
   },
   "devDependencies": {
-    "@babel/cli": "^7.0.0-beta.51",
-    "@babel/core": "^7.0.0-beta.51",
-    "@babel/preset-env": "^7.0.0-beta.51",
-    "@babel/preset-flow": "^7.0.0-beta.51",
-    "babel-eslint": "8",
-    "eslint": "^5.0.1",
-    "eslint-config-standard": "12.0.0-alpha.0",
-    "eslint-plugin-flowtype": "^2.49.3",
-    "eslint-plugin-import": "^2.13.0",
-    "eslint-plugin-node": "^6.0.1",
-    "eslint-plugin-promise": "^3.8.0",
-    "eslint-plugin-standard": "^3.1.0",
-    "flow-bin": "^0.75.0"
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.9.0",
+    "@babel/preset-env": "^7.9.5",
+    "@babel/preset-flow": "^7.9.0",
+    "@types/node": "^13.11.1",
+    "babel-eslint": "10",
+    "dtslint": "^3.4.1",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.10.1",
+    "eslint-config-standard": "14.1.1",
+    "eslint-plugin-flowtype": "^4.7.0",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^3.1.2",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "flow-bin": "^0.122.0",
+    "flow-copy-source": "^2.0.9",
+    "knex": "^0.20.13",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.0.4",
+    "typescript": "^3.8.3"
+  },
+  "peerDependencies": {
+    "knex": "*"
   },
   "dependencies": {
-    "chalk": "2.4.1"
+    "chalk": "^4.0.0"
   }
 }

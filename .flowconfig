@@ -1,4 +1,5 @@
 [ignore]
+/lib/.*
 
 [include]
 
@@ -7,5 +8,6 @@
 [lints]
 
 [options]
+suppress_comment=\\(.\\|\n\\)*\\$FlowExpectError
 
 [strict]
