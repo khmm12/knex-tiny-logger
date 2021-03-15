@@ -16,6 +16,9 @@ type KnexTinyLogger$Query = {
   startTime: KnexTinyLogger$StartTime,
 }
 
+type KnexTinyLogger$KnexFormatQuery = (sql: string, bindings: any) => string
+type Knex$QueryExecutionerFormat = (sql: string, bindings: any, timeZone?: string, client: Knex) => string
+
 const COLORIZE = {
   primary: chalk.magenta,
   error: chalk.red,
@@ -66,9 +69,11 @@ export default function knexTinyLogger(knex: Knex, options?: KnexTinyLoggerOptio
   }
 }
 
-function makeQueryPrinter(knex, { logger, withBindings }) {
+function makeQueryPrinter(knex: Knex, { logger, withBindings }) {
+  const formatQuery = getKnexFormatQuery(knex)
+
   return function print({ sql, bindings, duration }, colorize: Function) {
-    const sqlRequest = knex.client._formatQuery(sql, withBindings ? bindings : null)
+    const sqlRequest = formatQuery(sql, withBindings ? bindings : null)
 
     logger('%s %s', COLORIZE.primary(`SQL (${duration.toFixed(3)} ms)`), colorize(sqlRequest))
   }
@@ -82,4 +87,27 @@ function measureDuration(startTime: KnexTinyLogger$StartTime): number {
   const diff = process.hrtime(startTime)
   const duration = diff[0] * 1e3 + diff[1] * 1e-6
   return duration
+}
+
+function getKnexFormatQuery(knex: Knex): KnexTinyLogger$KnexFormatQuery {
+  let queryExecutionerFormat: ?Knex$QueryExecutionerFormat
+
+  if (typeof knex.client._formatQuery === 'function') {
+    return (sql, bindings) => knex.client._formatQuery(sql, bindings)
+  } else if ((queryExecutionerFormat = resolveQueryExecutionerFormat()) != null) {
+    // $FlowExpectError
+    return (sql, bindings) => queryExecutionerFormat(sql, bindings, undefined, knex)
+  } else {
+    return (sql) => sql
+  }
+}
+
+function resolveQueryExecutionerFormat(): ?Knex$QueryExecutionerFormat {
+  try {
+    // $FlowExpectError
+    const { formatQuery } = require('knex/lib/execution/internal/query-executioner')
+    return typeof formatQuery === 'function' ? formatQuery : null
+  } catch {
+    return null
+  }
 }
