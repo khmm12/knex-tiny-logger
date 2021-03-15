@@ -61,6 +61,6 @@
     "knex": "*"
   },
   "dependencies": {
-    "chalk": "^4.0.0"
+    "chalk": "^4.1.0"
   }
 }
