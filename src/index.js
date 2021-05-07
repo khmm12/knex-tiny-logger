@@ -96,7 +96,7 @@ function getKnexFormatQuery(knex: Knex): KnexTinyLogger$KnexFormatQuery {
     return (sql, bindings) => knex.client._formatQuery(sql, bindings)
   } else if ((queryExecutionerFormat = resolveQueryExecutionerFormat()) != null) {
     // $FlowExpectError
-    return (sql, bindings) => queryExecutionerFormat(sql, bindings, undefined, knex)
+    return (sql, bindings) => queryExecutionerFormat(sql, bindings, undefined, knex.client)
   } else {
     return (sql) => sql
   }
