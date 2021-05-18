@@ -1,9 +1,9 @@
 // Minimum TypeScript Version: 3.4
 
-import Knex = require('knex')
+import { Knex } from 'knex'
 
 export interface KnexTinyLoggerOptions {
-  logger?: (message?: any, ...optionalParams: any[]) => void,
+  logger?: (message?: any, ...optionalParams: any[]) => void
   bindings?: boolean
 }
 
