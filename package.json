@@ -52,13 +52,13 @@
     "eslint-plugin-standard": "^4.0.1",
     "flow-bin": "^0.122.0",
     "flow-copy-source": "^2.0.9",
-    "knex": "^0.20.13",
+    "knex": "^0.95.6",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.0.4",
     "typescript": "^3.8.3"
   },
   "peerDependencies": {
-    "knex": "*"
+    "knex": "^0.95.*"
   },
   "dependencies": {
     "chalk": "^4.1.0"
