@@ -58,7 +58,7 @@
     "typescript": "^3.8.3"
   },
   "peerDependencies": {
-    "knex": "0.95.6"
+    "knex": "^0.95.*"
   },
   "dependencies": {
     "chalk": "^4.1.0"
