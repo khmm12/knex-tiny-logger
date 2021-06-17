@@ -23,6 +23,7 @@ const COLORIZE = {
   primary: chalk.magenta,
   error: chalk.red,
   success: chalk.cyan,
+  info: chalk.blue,
 }
 
 /**
@@ -75,7 +76,14 @@ function makeQueryPrinter(knex: Knex, { logger, withBindings }) {
   return function print({ sql, bindings, duration }, colorize: Function) {
     const sqlRequest = formatQuery(sql, withBindings ? bindings : null)
 
-    logger('%s %s', COLORIZE.primary(`SQL (${duration.toFixed(3)} ms)`), colorize(sqlRequest))
+    if (withBindings) {
+      // Knex 0.95.0 has a binding issue, so current workaround is to pass bindings to logger.
+      // Ideally we want to embed bindings into SQL, but it is not possible (as long as keeping performance).
+      // See: https://github.com/khmm12/knex-tiny-logger/issues/11
+      logger('%s %s %s %j', COLORIZE.primary(`SQL (${duration.toFixed(3)} ms)`), colorize(sqlRequest), COLORIZE.info(`Bindings`), bindings);
+    } else {
+      logger('%s %s', COLORIZE.primary(`SQL (${duration.toFixed(3)} ms)`), colorize(sqlRequest));
+    }
   }
 }
 
