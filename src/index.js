@@ -84,7 +84,7 @@ function printWithBindings(sql: string, bindings: (string | number)[]) {
   return sql
     .replace(/\$\d{1,2}/g, () => {
       const variable = bindings[index++]
-      if (typeof variable === 'number') {
+      if (typeof variable === 'number' || typeof variable === 'boolean') {
         return String(variable)
       }
       return `'${variable}'`
