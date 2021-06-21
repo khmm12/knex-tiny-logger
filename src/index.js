@@ -73,13 +73,13 @@ function makeQueryPrinter(knex: Knex, { logger, withBindings }) {
   const formatQuery = getKnexFormatQuery(knex)
 
   return function print({ sql, bindings, duration }, colorize: Function) {
-    const sqlRequest = withBindings ? formatQuery(sql, null) : printWithBindings(sql, bindings)
+    const sqlRequest = withBindings ? formatWithBindings(sql, bindings) : formatQuery(sql, null)
 
     logger('%s %s', COLORIZE.primary(`SQL (${duration.toFixed(3)} ms)`), colorize(sqlRequest))
   }
 }
 
-function printWithBindings(sql: string, bindings: (string | number)[]) {
+function formatWithBindings(sql: string, bindings: (string | number)[]) {
   let index = 0
   return sql
     .replace(/\$\d{1,2}/g, () => {
