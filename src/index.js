@@ -73,10 +73,22 @@ function makeQueryPrinter(knex: Knex, { logger, withBindings }) {
   const formatQuery = getKnexFormatQuery(knex)
 
   return function print({ sql, bindings, duration }, colorize: Function) {
-    const sqlRequest = formatQuery(sql, withBindings ? bindings : null)
+    const sqlRequest = withBindings ? formatQuery(sql, null) : printWithBindings(sql, bindings)
 
     logger('%s %s', COLORIZE.primary(`SQL (${duration.toFixed(3)} ms)`), colorize(sqlRequest))
   }
+}
+
+function printWithBindings(sql: string, bindings: (string | number)[]) {
+  let index = 0
+  return sql
+    .replace(/\$\d{1,2}/g, () => {
+      const variable = bindings[index++]
+      if (typeof variable === 'number') {
+        return String(variable)
+      }
+      return `'${variable}'`
+    })
 }
 
 function measureStartTime() {
