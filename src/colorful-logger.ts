@@ -12,15 +12,23 @@ const COLORIZE = {
 /**
  * Create the built-in ANSI-colored string logger.
  *
- * It writes to `console.log` by default. `bindings` configures the built-in
- * formatter; `formatter` lets you provide custom SQL formatting.
+ * It behaves like `defaultLogger`, but colors output by query state.
+ *
+ * It writes to `console.log` by default.
+ *
+ * By default, it asks Knex to interpolate bindings into the logged SQL.
+ * `bindings: false` writes the original SQL with placeholders.
+ *
+ * `formatter` lets you replace SQL formatting completely.
  *
  * @example
  * ```ts
  * import knexTinyLogger from 'knex-tiny-logger'
  * import { colorfulLogger } from 'knex-tiny-logger/colorful'
  *
- * knexTinyLogger(knex, { logger: colorfulLogger() })
+ * knexTinyLogger(knex, {
+ *   logger: colorfulLogger(),
+ * })
  * ```
  */
 export function colorfulLogger(options: ColorfulLoggerOptions = {}): Logger {

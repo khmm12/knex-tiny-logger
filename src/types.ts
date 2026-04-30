@@ -1,6 +1,10 @@
 import type { Knex } from 'knex'
 
-/** Function logger adapter, for example `console.log`. */
+/**
+ * Function logger adapter, for example `console.log`.
+ *
+ * Receives default string log messages.
+ */
 export type SimpleLogger = (message?: unknown, ...optionalParams: unknown[]) => void
 
 /** Receives one complete message from a string logger. */
@@ -23,7 +27,11 @@ export interface QueryFormatterInput {
 
 /** Options for `defaultQueryFormatter`. */
 export interface DefaultQueryFormatterOptions {
-  /** Include bindings in formatted SQL when Knex can interpolate them. Defaults to `true`. */
+  /**
+   * Ask Knex to interpolate bindings into the logged SQL.
+   *
+   * Defaults to `true`.
+   */
   bindings?: boolean
 }
 
@@ -110,13 +118,15 @@ interface StringLoggerBaseOptions {
 /**
  * Options shared by string loggers.
  *
- * `bindings` configures the built-in formatter. `formatter` provides custom
- * SQL formatting, so `bindings` only applies when `formatter` is not provided.
+ * Bindings are interpolated into the logged SQL by default through Knex.
+ *
+ * `formatter` provides custom SQL formatting, so `bindings` only applies when
+ * `formatter` is not provided.
  */
 export type StringLoggerOptions = StringLoggerBaseOptions &
   (
     | {
-        /** Include bindings in SQL formatted by the built-in formatter. Defaults to `true`. */
+        /** Ask Knex to interpolate bindings into the logged SQL. Defaults to `true`. */
         bindings?: boolean
         formatter?: undefined
       }
@@ -129,7 +139,7 @@ export type StringLoggerOptions = StringLoggerBaseOptions &
 
 /** Options accepted by `defaultLogger`. */
 export type DefaultLoggerOptions = StringLoggerOptions
-/** Options accepted by `colorfulLogger`. */
+/** Options accepted by `colorfulLogger`; same formatting options as `defaultLogger`. */
 export type ColorfulLoggerOptions = StringLoggerOptions
 
 /** Options for `createTracer`. */
@@ -140,8 +150,16 @@ export interface CreateTracerOptions extends TracerHooks {
 
 /** Options for `knexTinyLogger`. */
 export interface KnexTinyLoggerOptions {
-  /** Logger implementation or simple log function. Defaults to `defaultLogger()`. */
+  /**
+   * Logger implementation or simple log function.
+   *
+   * Defaults to String Logs through `defaultLogger()`.
+   */
   logger?: Logger | SimpleLogger
-  /** Called when a logger hook, writer, or formatter throws. Defaults to `console.error`. */
+  /**
+   * Called when a logger hook, writer, or formatter throws.
+   *
+   * Defaults to `console.error`.
+   */
   onLoggerError?: (event: LoggerErrorEvent) => void
 }

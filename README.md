@@ -1,8 +1,8 @@
 # knex-tiny-logger
 
-> Zero-config query logging for Knex. Tiny by default, flexible when needed.
-
 [![](https://img.shields.io/npm/v/knex-tiny-logger.svg?style=flat-square)](https://npmjs.com/package/knex-tiny-logger)
+
+> Zero-config query logging for Knex. Tiny by default, flexible when needed.
 
 ## Install
 
@@ -39,9 +39,14 @@ const knex = knexTinyLogger(
 )
 ```
 
-That is the default path: plain output, no extra runtime dependencies.
+By default, `knexTinyLogger` uses `defaultLogger`: plain string logs, no extra runtime dependencies.
 
-## String Logs
+```text
+SQL (3.421 ms) select 1 as id
+SQL ERROR (2.104 ms) select * from missing_table
+```
+
+## Default Logger
 
 ```ts
 import knexTinyLogger, { defaultLogger } from 'knex-tiny-logger'
@@ -51,7 +56,9 @@ knexTinyLogger(knex, {
 })
 ```
 
-String loggers format SQL before writing it. Use `bindings` for the built-in formatter, or replace formatting completely:
+The default logger formats SQL before writing it. By default, it asks Knex to interpolate bindings into the logged SQL.
+
+Set `bindings: false` to write the original SQL with placeholders, or replace formatting completely:
 
 ```ts
 knexTinyLogger(knex, {
@@ -73,7 +80,10 @@ knexTinyLogger(knex, {
 
 ## Colorful Logs
 
-The colorful logger lives in a separate entrypoint.
+The colorful logger is the same string logger experience, with output colored by query state.
+It supports the same `bindings`, `formatter`, and `write` options as `defaultLogger`.
+
+Successful SQL is cyan; failed SQL is red. The message shape otherwise matches `defaultLogger`.
 
 ```ts
 import knexTinyLogger from 'knex-tiny-logger'
@@ -93,13 +103,12 @@ import knexTinyLogger from 'knex-tiny-logger'
 import { pinoLogger } from 'knex-tiny-logger/pino'
 
 knexTinyLogger(knex, {
-  logger: pinoLogger(pino, {
-    bindings: true,
-  }),
+  logger: pinoLogger(pino),
 })
 ```
 
 The pino adapter logs `sql`, `bindings`, and `durationMs`; errors also include `err`.
+Bindings are included by default. Set `bindings: false` to omit them from the structured payload.
 
 ## Custom Logger
 
@@ -118,6 +127,21 @@ const logger: Logger = {
 knexTinyLogger(knex, { logger })
 ```
 
+Passing a function uses the default string formatting and writes each log message to that function:
+
+```ts
+import { defaultLogger } from 'knex-tiny-logger'
+
+knexTinyLogger(knex, { logger: console.log })
+
+// same as
+knexTinyLogger(knex, {
+  logger: defaultLogger({ write: console.log }),
+})
+```
+
+## Logger Errors
+
 Logger errors are caught so logging does not break queries. By default they are reported with `console.error`.
 
 ```ts
@@ -129,35 +153,36 @@ knexTinyLogger(knex, {
 })
 ```
 
-Simple function loggers also work:
-
-```ts
-knexTinyLogger(knex, { logger: console.log })
-```
-
 ## Tracing
 
-Use the tracer directly for lower-level integrations.
+For lower-level integrations:
 
 ```ts
 import { createTracer } from 'knex-tiny-logger/tracer'
 
+const spans = new Map()
+
 const tracer = createTracer(knex, {
   onStart(query) {
-    span.start(query.sql)
+    spans.set(query.queryId, tracerProvider.startSpan('sql', {
+      sql: query.sql,
+      bindings: query.bindings,
+    }))
   },
   onEnd(query) {
-    span.end({ durationMs: query.durationMs })
+    spans.get(query.queryId)?.end({ durationMs: query.durationMs })
+    spans.delete(query.queryId)
   },
   onError(query) {
-    span.fail(query.error)
+    spans.get(query.queryId)?.fail(query.error)
+    spans.delete(query.queryId)
   },
 })
 
 tracer.dispose()
 ```
 
-The tracer is raw on purpose: lifecycle, duration, SQL, bindings, errors. Formatting belongs to loggers.
+The tracer exposes query lifecycle events with duration, SQL, bindings, and errors.
 
 ## License
 

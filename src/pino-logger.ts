@@ -32,7 +32,7 @@ export interface PinoLoggerOptions {
  * import { pinoLogger } from 'knex-tiny-logger/pino'
  *
  * knexTinyLogger(knex, {
- *   logger: pinoLogger(pino, { bindings: true }),
+ *   logger: pinoLogger(pino),
  * })
  * ```
  */

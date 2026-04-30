@@ -28,8 +28,10 @@ export type {
  * Attach query logging to a Knex instance and return the same instance.
  *
  * With no options, queries are logged through the built-in dependency-free
- * logger. Logger errors are caught and reported through `onLoggerError` so
- * logging does not break database queries.
+ * `defaultLogger()`.
+ *
+ * Logger errors are caught and reported through `onLoggerError` so logging does
+ * not break database queries.
  *
  * @example
  * ```ts
