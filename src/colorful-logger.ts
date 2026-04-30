@@ -9,6 +9,20 @@ const COLORIZE = {
   success: ansi.cyan,
 }
 
+/**
+ * Create the built-in ANSI-colored string logger.
+ *
+ * It writes to `console.log` by default. `bindings` configures the built-in
+ * formatter; `formatter` lets you provide custom SQL formatting.
+ *
+ * @example
+ * ```ts
+ * import knexTinyLogger from 'knex-tiny-logger'
+ * import { colorfulLogger } from 'knex-tiny-logger/colorful'
+ *
+ * knexTinyLogger(knex, { logger: colorfulLogger() })
+ * ```
+ */
 export function colorfulLogger(options: ColorfulLoggerOptions = {}): Logger {
   const write = resolveMessageWriter(options.write)
   const formatter = resolveFormatter(options)

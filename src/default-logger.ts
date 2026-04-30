@@ -2,6 +2,19 @@ import { defaultQueryFormatter } from './formatter.ts'
 import { resolveMessageWriter } from './message-writer.ts'
 import type { DefaultLoggerOptions, Logger, QueryFormatter } from './types.ts'
 
+/**
+ * Create the built-in dependency-free string logger.
+ *
+ * It writes to `console.log` by default. `bindings` configures the built-in
+ * formatter; `formatter` lets you provide custom SQL formatting.
+ *
+ * @example
+ * ```ts
+ * import knexTinyLogger, { defaultLogger } from 'knex-tiny-logger'
+ *
+ * knexTinyLogger(knex, { logger: defaultLogger({ bindings: false }) })
+ * ```
+ */
 export function defaultLogger(options: DefaultLoggerOptions = {}): Logger {
   const write = resolveMessageWriter(options.write)
   const formatter = resolveFormatter(options)

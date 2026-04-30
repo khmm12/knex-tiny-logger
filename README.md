@@ -86,7 +86,7 @@ knexTinyLogger(knex, {
 
 ## Pino
 
-Structured loggers should receive structured fields, not preformatted SQL strings.
+The pino adapter keeps query data structured.
 
 ```ts
 import knexTinyLogger from 'knex-tiny-logger'

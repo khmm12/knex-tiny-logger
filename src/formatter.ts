@@ -1,6 +1,12 @@
 import type { Knex } from 'knex'
 import type { DefaultQueryFormatterOptions, QueryFormatter, QueryFormatterInput } from './types.ts'
 
+/**
+ * Create the built-in SQL formatter used by string loggers.
+ *
+ * Bindings are included by default. If Knex cannot format a query, the
+ * formatter returns the original SQL.
+ */
 export function defaultQueryFormatter(options: DefaultQueryFormatterOptions = {}): QueryFormatter {
   const { bindings: withBindings = true } = options
 

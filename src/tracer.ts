@@ -22,6 +22,25 @@ type KnexWithEvents = Knex & {
   removeListener?: (eventName: string, listener: (...args: unknown[]) => void) => KnexWithEvents
 }
 
+/**
+ * Attach low-level query tracing hooks to a Knex instance.
+ *
+ * The tracer reports raw query lifecycle data and never formats SQL. Hook
+ * errors are caught and passed to `onTracerError`, which is a no-op by default.
+ *
+ * @example
+ * ```ts
+ * import { createTracer } from 'knex-tiny-logger/tracer'
+ *
+ * const tracer = createTracer(knex, {
+ *   onEnd(event) {
+ *     console.log(event.sql, event.durationMs)
+ *   },
+ * })
+ *
+ * tracer.dispose()
+ * ```
+ */
 export function createTracer(knex: Knex, options: CreateTracerOptions = {}): Tracer {
   const { onStart, onEnd, onError, onTracerError = noopTracerErrorHandler } = options
   const knexWithEvents = knex as KnexWithEvents

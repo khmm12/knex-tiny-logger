@@ -24,6 +24,26 @@ export type {
   StringLoggerOptions,
 } from './types.ts'
 
+/**
+ * Attach query logging to a Knex instance and return the same instance.
+ *
+ * With no options, queries are logged through the built-in dependency-free
+ * logger. Logger errors are caught and reported through `onLoggerError` so
+ * logging does not break database queries.
+ *
+ * @example
+ * ```ts
+ * import createKnex from 'knex'
+ * import knexTinyLogger from 'knex-tiny-logger'
+ *
+ * const knex = knexTinyLogger(
+ *   createKnex({
+ *     client: 'pg',
+ *     connection: process.env.DATABASE_URL,
+ *   }),
+ * )
+ * ```
+ */
 export default function knexTinyLogger(knex: Knex, options: KnexTinyLoggerOptions = {}): Knex {
   const logger = resolveLogger(options.logger)
   const onLoggerError = options.onLoggerError ?? defaultLoggerErrorHandler
