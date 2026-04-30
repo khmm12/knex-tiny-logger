@@ -1,6 +1,6 @@
 import type { Knex } from 'knex'
-import { timingAdapter } from './timing.js'
-import type { CreateTracerOptions, QueryData, QueryStartEvent, Tracer, TracerQueryFinishEvent } from './types.js'
+import { timingAdapter } from './timing.ts'
+import type { CreateTracerOptions, QueryData, QueryStartEvent, Tracer, TracerQueryFinishEvent } from './types.ts'
 
 export type {
   CreateTracerOptions,
@@ -10,7 +10,7 @@ export type {
   TracerQueryEndEvent,
   TracerQueryErrorEvent,
   TracerQueryFinishEvent,
-} from './types.js'
+} from './types.ts'
 
 interface ActiveQuery extends QueryStartEvent {
   startTime: unknown

@@ -1,10 +1,10 @@
 import type { Knex } from 'knex'
-import { resolveLogger } from './resolve-logger.js'
-import { createTracer } from './tracer.js'
-import type { KnexTinyLoggerOptions } from './types.js'
+import { resolveLogger } from './resolve-logger.ts'
+import { createTracer } from './tracer.ts'
+import type { KnexTinyLoggerOptions } from './types.ts'
 
-export { defaultLogger } from './default-logger.js'
-export { defaultQueryFormatter } from './formatter.js'
+export { defaultLogger } from './default-logger.ts'
+export { defaultQueryFormatter } from './formatter.ts'
 export type {
   DefaultLoggerOptions,
   DefaultQueryFormatterOptions,
@@ -22,7 +22,7 @@ export type {
   QueryStartEvent,
   SimpleLogger,
   StringLoggerOptions,
-} from './types.js'
+} from './types.ts'
 
 export default function knexTinyLogger(knex: Knex, options: KnexTinyLoggerOptions = {}): Knex {
   const logger = resolveLogger(options.logger)

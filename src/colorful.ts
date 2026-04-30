@@ -1,2 +1,2 @@
-export { colorfulLogger } from './colorful-logger.js'
-export type { ColorfulLoggerOptions } from './types.js'
+export { colorfulLogger } from './colorful-logger.ts'
+export type { ColorfulLoggerOptions } from './types.ts'

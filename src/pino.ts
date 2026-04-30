@@ -1,2 +1,2 @@
-export type { PinoLikeLogger, PinoLoggerOptions, PinoLogMethod } from './pino-logger.js'
-export { pinoLogger } from './pino-logger.js'
+export type { PinoLikeLogger, PinoLoggerOptions, PinoLogMethod } from './pino-logger.ts'
+export { pinoLogger } from './pino-logger.ts'

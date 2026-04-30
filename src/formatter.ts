@@ -1,5 +1,5 @@
 import type { Knex } from 'knex'
-import type { DefaultQueryFormatterOptions, QueryFormatter, QueryFormatterInput } from './types.js'
+import type { DefaultQueryFormatterOptions, QueryFormatter, QueryFormatterInput } from './types.ts'
 
 export function defaultQueryFormatter(options: DefaultQueryFormatterOptions = {}): QueryFormatter {
   const { bindings: withBindings = true } = options

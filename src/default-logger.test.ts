@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { defaultLogger } from 'knex-tiny-logger'
 import { createQueryEndEvent, createQueryErrorEvent } from '../test/helpers/events.ts'
+import { defaultLogger } from './default-logger.ts'
 import type { QueryFormatterInput } from './types.ts'
 
 test('defaultLogger writes successful queries without colors', () => {

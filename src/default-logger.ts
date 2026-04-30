@@ -1,6 +1,6 @@
-import { defaultQueryFormatter } from './formatter.js'
-import { resolveMessageWriter } from './message-writer.js'
-import type { DefaultLoggerOptions, Logger, QueryFormatter } from './types.js'
+import { defaultQueryFormatter } from './formatter.ts'
+import { resolveMessageWriter } from './message-writer.ts'
+import type { DefaultLoggerOptions, Logger, QueryFormatter } from './types.ts'
 
 export function defaultLogger(options: DefaultLoggerOptions = {}): Logger {
   const write = resolveMessageWriter(options.write)

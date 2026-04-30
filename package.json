@@ -1,6 +1,6 @@
 {
   "name": "knex-tiny-logger",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Tiny logger for knex",
   "repository": {
     "type": "git",
@@ -16,38 +16,53 @@
   ],
   "license": "MIT",
   "type": "module",
-  "main": "./dist/cjs/index.cjs",
-  "module": "./dist/esm/index.js",
-  "types": "./dist/types/index.d.ts",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "import": {
-        "types": "./dist/types/index.d.ts",
-        "default": "./dist/esm/index.js"
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
       },
       "require": {
-        "types": "./dist/types/index.d.cts",
-        "default": "./dist/cjs/index.cjs"
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
       },
-      "default": "./dist/esm/index.js"
+      "default": "./dist/index.mjs"
     },
     "./colorful": {
-      "types": "./dist/types/colorful.d.ts",
-      "import": "./dist/esm/colorful.js",
-      "require": "./dist/cjs/colorful.js",
-      "default": "./dist/esm/colorful.js"
+      "import": {
+        "types": "./dist/colorful.d.mts",
+        "default": "./dist/colorful.mjs"
+      },
+      "require": {
+        "types": "./dist/colorful.d.cts",
+        "default": "./dist/colorful.cjs"
+      },
+      "default": "./dist/colorful.mjs"
     },
     "./pino": {
-      "types": "./dist/types/pino.d.ts",
-      "import": "./dist/esm/pino.js",
-      "require": "./dist/cjs/pino.js",
-      "default": "./dist/esm/pino.js"
+      "import": {
+        "types": "./dist/pino.d.mts",
+        "default": "./dist/pino.mjs"
+      },
+      "require": {
+        "types": "./dist/pino.d.cts",
+        "default": "./dist/pino.cjs"
+      },
+      "default": "./dist/pino.mjs"
     },
     "./tracer": {
-      "types": "./dist/types/tracer.d.ts",
-      "import": "./dist/esm/tracer.js",
-      "require": "./dist/cjs/tracer.js",
-      "default": "./dist/esm/tracer.js"
+      "import": {
+        "types": "./dist/tracer.d.mts",
+        "default": "./dist/tracer.mjs"
+      },
+      "require": {
+        "types": "./dist/tracer.d.cts",
+        "default": "./dist/tracer.cjs"
+      },
+      "default": "./dist/tracer.mjs"
     }
   },
   "engines": {
@@ -57,9 +72,7 @@
   "packageManager": "pnpm@10.18.3",
   "sideEffects": false,
   "scripts": {
-    "build": "pnpm run clean && pnpm run build:esm && pnpm run build:cjs && node ./scripts/write-cjs-wrapper.cjs",
-    "build:esm": "tsc -p tsconfig.esm.json",
-    "build:cjs": "tsc -p tsconfig.cjs.json",
+    "build": "unbuild",
     "check": "pnpm run typecheck && pnpm run lint && pnpm run test:run",
     "clean": "rm -rf dist",
     "format": "biome format --write .",
@@ -81,7 +94,8 @@
     "@types/node": "^24",
     "knex": "^3.1.0",
     "sqlite3": "^6.0.1",
-    "typescript": "^5.9.0"
+    "typescript": "^5.9.0",
+    "unbuild": "^3.6.1"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

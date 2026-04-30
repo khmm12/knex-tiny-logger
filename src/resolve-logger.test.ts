@@ -1,11 +1,7 @@
 import assert from 'node:assert/strict'
-import { createRequire } from 'node:module'
 import test from 'node:test'
 import { createQueryEndEvent } from '../test/helpers/events.ts'
-import type { Logger } from './types.ts'
-
-const require = createRequire(import.meta.url)
-const { resolveLogger } = require('../dist/cjs/resolve-logger.js') as { resolveLogger: (logger: unknown) => Logger }
+import { resolveLogger } from './resolve-logger.ts'
 
 test('resolveLogger returns the default logger when no logger is provided', () => {
   assert.equal(typeof resolveLogger(undefined).onEnd, 'function')

@@ -1,5 +1,5 @@
-import { defaultLogger } from './default-logger.js'
-import type { KnexTinyLoggerOptions, Logger } from './types.js'
+import { defaultLogger } from './default-logger.ts'
+import type { KnexTinyLoggerOptions, Logger } from './types.ts'
 
 export function resolveLogger(logger: KnexTinyLoggerOptions['logger']): Logger {
   if (!logger) {

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { colorfulLogger } from 'knex-tiny-logger/colorful'
 import { createQueryEndEvent, createQueryErrorEvent } from '../test/helpers/events.ts'
+import { colorfulLogger } from './colorful-logger.ts'
 
 test('colorfulLogger writes successful queries', () => {
   const calls: string[] = []

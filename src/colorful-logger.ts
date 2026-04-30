@@ -1,7 +1,7 @@
-import { ansi } from './ansi.js'
-import { defaultQueryFormatter } from './formatter.js'
-import { resolveMessageWriter } from './message-writer.js'
-import type { ColorfulLoggerOptions, Logger, QueryFormatter } from './types.js'
+import { ansi } from './ansi.ts'
+import { defaultQueryFormatter } from './formatter.ts'
+import { resolveMessageWriter } from './message-writer.ts'
+import type { ColorfulLoggerOptions, Logger, QueryFormatter } from './types.ts'
 
 const COLORIZE = {
   primary: ansi.magenta,

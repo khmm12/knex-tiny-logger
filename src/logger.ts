@@ -1,2 +1,2 @@
-export { defaultLogger } from './default-logger.js'
-export { resolveLogger } from './resolve-logger.js'
+export { defaultLogger } from './default-logger.ts'
+export { resolveLogger } from './resolve-logger.ts'

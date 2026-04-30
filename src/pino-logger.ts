@@ -1,4 +1,4 @@
-import type { Logger, QueryEndEvent, QueryErrorEvent } from './types.js'
+import type { Logger, QueryEndEvent, QueryErrorEvent } from './types.ts'
 
 export type PinoLogMethod = (object: Record<string, unknown>, message?: string) => void
 

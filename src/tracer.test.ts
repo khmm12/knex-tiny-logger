@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { createTracer } from 'knex-tiny-logger/tracer'
 import { createFakeKnex } from '../test/helpers/fake-knex.ts'
+import { createTracer } from './tracer.ts'
 import type { QueryStartEvent, TracerQueryEndEvent, TracerQueryErrorEvent } from './types.ts'
 
 test('createTracer emits start and end events with duration', async () => {

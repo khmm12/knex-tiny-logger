@@ -23,7 +23,6 @@ declare const pino: PinoLikeLogger
 declare const messageWriterTarget: MessageWriterTarget
 
 knexTinyLogger(knex) satisfies Knex
-knexTinyLogger.default(knex) satisfies Knex
 knexTinyLogger.defaultLogger() satisfies Logger
 knexTinyLogger.defaultLogger({ write: messageWriterTarget }) satisfies Logger
 knexTinyLogger.defaultQueryFormatter({ bindings: false } satisfies DefaultQueryFormatterOptions) satisfies Function

@@ -106,8 +106,14 @@ test('esm subpath adapters work in Node.js', () => {
 test('commonjs package entrypoint works in Node.js', () => {
   const knexTinyLoggerCjs = require('knex-tiny-logger')
   const { colorfulLogger } = require('knex-tiny-logger/colorful')
+  const { pinoLogger } = require('knex-tiny-logger/pino')
+  const { createTracer } = require('knex-tiny-logger/tracer')
 
   assert.equal(typeof knexTinyLoggerCjs, 'function')
+  assert.equal(knexTinyLoggerCjs.default, knexTinyLoggerCjs)
+  assert.equal(knexTinyLoggerCjs.createTracer, undefined)
   assert.equal(typeof knexTinyLoggerCjs.defaultLogger, 'function')
   assert.equal(typeof colorfulLogger, 'function')
+  assert.equal(typeof pinoLogger, 'function')
+  assert.equal(typeof createTracer, 'function')
 })

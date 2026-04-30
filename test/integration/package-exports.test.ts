@@ -1,5 +1,4 @@
 import assert from 'node:assert/strict'
-import { createRequire } from 'node:module'
 import test from 'node:test'
 import knexTinyLogger, { defaultLogger, defaultQueryFormatter } from 'knex-tiny-logger'
 import { colorfulLogger } from 'knex-tiny-logger/colorful'
@@ -13,30 +12,12 @@ test('exports an esm default logger plugin', () => {
   assert.equal(typeof defaultQueryFormatter, 'function')
 })
 
-test('exports a callable commonjs entrypoint with named helpers', () => {
-  const require = createRequire(import.meta.url)
-  const cjs = require('../../dist/cjs/index.cjs')
-
-  assert.equal(typeof cjs, 'function')
-  assert.equal(cjs.default, cjs)
-  assert.equal(cjs.createTracer, undefined)
-  assert.equal(typeof cjs.defaultLogger, 'function')
-  assert.equal(typeof cjs.defaultLogger().onEnd, 'function')
-})
-
-test('exports colorful loggers from a separate entrypoint', () => {
-  const require = createRequire(import.meta.url)
-  const cjs = require('../../dist/cjs/colorful.js')
-
+test('exports colorful loggers from a separate esm entrypoint', () => {
   assert.equal(typeof colorfulLogger, 'function')
   assert.equal(typeof colorfulLogger().onEnd, 'function')
-  assert.equal(typeof cjs.colorfulLogger, 'function')
-  assert.equal(typeof cjs.colorfulLogger().onEnd, 'function')
 })
 
-test('exports pino loggers from a separate entrypoint', () => {
-  const require = createRequire(import.meta.url)
-  const cjs = require('../../dist/cjs/pino.js')
+test('exports pino loggers from a separate esm entrypoint', () => {
   const pino = {
     info() {},
     error() {},
@@ -44,14 +25,8 @@ test('exports pino loggers from a separate entrypoint', () => {
 
   assert.equal(typeof pinoLogger, 'function')
   assert.equal(typeof pinoLogger(pino).onEnd, 'function')
-  assert.equal(typeof cjs.pinoLogger, 'function')
-  assert.equal(typeof cjs.pinoLogger(pino).onEnd, 'function')
 })
 
-test('exports tracer from a separate entrypoint', () => {
-  const require = createRequire(import.meta.url)
-  const cjs = require('../../dist/cjs/tracer.js')
-
+test('exports tracer from a separate esm entrypoint', () => {
   assert.equal(typeof createTracer, 'function')
-  assert.equal(typeof cjs.createTracer, 'function')
 })
