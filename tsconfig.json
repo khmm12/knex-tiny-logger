@@ -1,0 +1,9 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.typecheck.json" },
+    { "path": "./tsconfig.test.json" },
+    { "path": "./tsconfig.type-tests.json" },
+    { "path": "./tsconfig.type-tests.cjs.json" }
+  ]
+}

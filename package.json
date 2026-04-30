@@ -1,6 +1,6 @@
 {
   "name": "knex-tiny-logger",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "description": "Tiny logger for knex",
   "repository": {
     "type": "git",
@@ -8,59 +8,83 @@
   },
   "author": "Maixm Khvatalin <khmm12@gmail.com> (http://github.com/khmm12)",
   "files": [
-    "/lib",
-    "/typings/index.d.ts"
+    "dist"
   ],
   "keywords": [
     "knex",
     "logger"
   ],
   "license": "MIT",
-  "main": "lib/index.js",
-  "engines": {
-    "node": ">=10"
+  "type": "module",
+  "main": "./dist/cjs/index.cjs",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/types/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "require": {
+        "types": "./dist/types/index.d.cts",
+        "default": "./dist/cjs/index.cjs"
+      },
+      "default": "./dist/esm/index.js"
+    },
+    "./colorful": {
+      "types": "./dist/types/colorful.d.ts",
+      "import": "./dist/esm/colorful.js",
+      "require": "./dist/cjs/colorful.js",
+      "default": "./dist/esm/colorful.js"
+    },
+    "./pino": {
+      "types": "./dist/types/pino.d.ts",
+      "import": "./dist/esm/pino.js",
+      "require": "./dist/cjs/pino.js",
+      "default": "./dist/esm/pino.js"
+    },
+    "./tracer": {
+      "types": "./dist/types/tracer.d.ts",
+      "import": "./dist/esm/tracer.js",
+      "require": "./dist/cjs/tracer.js",
+      "default": "./dist/esm/tracer.js"
+    }
   },
-  "typings": "typings",
+  "engines": {
+    "node": ">=20",
+    "bun": ">=1.3"
+  },
+  "packageManager": "pnpm@10.18.3",
   "sideEffects": false,
   "scripts": {
-    "test": "run-p --aggregate-output test:*",
-    "test:lint": "eslint src",
-    "test:flow": "flow check",
-    "test:ts": "dtslint ./typings",
-    "build": "run-s build:clean build:cjs build:flow",
-    "build:clean": "rm -rf lib",
-    "build:cjs": "babel src --ignore src/__typings__ --out-dir lib",
-    "build:flow": "flow-copy-source --ignore '__typings__/*.js' src lib",
-    "precommit": "test"
-  },
-  "devDependencies": {
-    "@babel/cli": "^7.8.4",
-    "@babel/core": "^7.9.0",
-    "@babel/preset-env": "^7.9.5",
-    "@babel/preset-flow": "^7.9.0",
-    "@types/node": "^13.11.1",
-    "babel-eslint": "10",
-    "dtslint": "^3.4.1",
-    "eslint": "^6.8.0",
-    "eslint-config-prettier": "^6.10.1",
-    "eslint-config-standard": "14.1.1",
-    "eslint-plugin-flowtype": "^4.7.0",
-    "eslint-plugin-import": "^2.20.2",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-prettier": "^3.1.2",
-    "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-standard": "^4.0.1",
-    "flow-bin": "^0.122.0",
-    "flow-copy-source": "^2.0.9",
-    "knex": "^0.20.13",
-    "npm-run-all": "^4.1.5",
-    "prettier": "^2.0.4",
-    "typescript": "^3.8.3"
+    "build": "pnpm run clean && pnpm run build:esm && pnpm run build:cjs && node ./scripts/write-cjs-wrapper.cjs",
+    "build:esm": "tsc -p tsconfig.esm.json",
+    "build:cjs": "tsc -p tsconfig.cjs.json",
+    "check": "pnpm run typecheck && pnpm run lint && pnpm run test:run",
+    "clean": "rm -rf dist",
+    "format": "biome format --write .",
+    "lint": "biome check .",
+    "test": "pnpm run build && pnpm run test:run",
+    "test:integration": "node --test test/integration/*.test.ts",
+    "test:run": "pnpm run test:unit && pnpm run test:integration",
+    "test:bun": "pnpm run build && bun test test/bun",
+    "test:types": "tsc -p tsconfig.type-tests.json && tsc -p tsconfig.type-tests.cjs.json",
+    "test:unit": "node --test src/*.test.ts",
+    "typecheck": "tsc -p tsconfig.typecheck.json --noEmit && pnpm run build && tsc -p tsconfig.test.json && pnpm run test:types"
   },
   "peerDependencies": {
-    "knex": "*"
+    "knex": "^3.0.0"
   },
-  "dependencies": {
-    "chalk": "^4.1.0"
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.13",
+    "@types/node": "^24",
+    "knex": "^3.1.0",
+    "sqlite3": "^6.0.1",
+    "typescript": "^5.9.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "sqlite3"
+    ]
   }
 }
