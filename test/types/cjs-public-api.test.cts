@@ -4,6 +4,7 @@ import type {
   Logger,
   LoggerErrorEvent,
   MessageWriterTarget,
+  QueryFormatter,
   SimpleLogger,
 } from 'knex-tiny-logger'
 import type { PinoLikeLogger } from 'knex-tiny-logger/pino'
@@ -25,7 +26,9 @@ declare const messageWriterTarget: MessageWriterTarget
 knexTinyLogger(knex) satisfies Knex
 knexTinyLogger.defaultLogger() satisfies Logger
 knexTinyLogger.defaultLogger({ write: messageWriterTarget }) satisfies Logger
-knexTinyLogger.defaultQueryFormatter({ bindings: false } satisfies DefaultQueryFormatterOptions) satisfies Function
+knexTinyLogger.defaultQueryFormatter({
+  bindings: false,
+} satisfies DefaultQueryFormatterOptions) satisfies QueryFormatter
 // @ts-expect-error Tracer is available only from the tracer subpath.
 knexTinyLogger.createTracer
 knexTinyLogger(knex, {
