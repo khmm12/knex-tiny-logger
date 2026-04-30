@@ -3,9 +3,7 @@ import { defineBuildConfig } from 'unbuild'
 export default defineBuildConfig({
   clean: true,
   declaration: 'compatible',
-  entries: ['./src/index', './src/colorful', './src/pino', './src/tracer'],
   rollup: {
-    emitCJS: true,
     output: {
       exports: 'named',
       footer(chunk: { fileName: string }) {
