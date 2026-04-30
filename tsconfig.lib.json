@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "tsBuildInfoFile": "node_modules/.cache/tsconfig.lib.tsbuildinfo"
+  },
+  "include": ["src/**/*.ts", "test/helpers/**/*.ts", "test/integration/**/*.ts"]
+}

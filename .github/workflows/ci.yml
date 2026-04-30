@@ -51,7 +51,7 @@ jobs:
       - name: Build
         run: pnpm run build
       - name: Check runtime
-        run: pnpm run test:runtime
+        run: pnpm run test:runtime:node
 
   bun:
     name: Check Bun
@@ -72,5 +72,7 @@ jobs:
           bun-version: 1.3
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      - name: Build
+        run: pnpm run build
       - name: Check Bun
-        run: pnpm run test:bun
+        run: pnpm run test:runtime:bun

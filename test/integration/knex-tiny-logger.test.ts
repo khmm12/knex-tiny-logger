@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import createKnex from 'knex'
-import knexTinyLogger, { defaultLogger, defaultQueryFormatter } from 'knex-tiny-logger'
-import { createTracer, type TracerQueryEndEvent, type TracerQueryErrorEvent } from 'knex-tiny-logger/tracer'
+import knexTinyLogger, { defaultLogger, defaultQueryFormatter } from '../../src/index.ts'
+import { createTracer } from '../../src/tracer.ts'
+import type { TracerQueryEndEvent, TracerQueryErrorEvent } from '../../src/types.ts'
 import { createFakeKnex } from '../helpers/fake-knex.ts'
 
 test('knexTinyLogger returns the knex instance and supports simple function loggers', () => {

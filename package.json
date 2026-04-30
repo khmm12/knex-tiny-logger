@@ -73,18 +73,16 @@
   "sideEffects": false,
   "scripts": {
     "build": "unbuild",
-    "check": "pnpm run typecheck && pnpm run lint && pnpm run test:run",
-    "clean": "rm -rf dist",
+    "check": "pnpm run build && pnpm run typecheck && pnpm run test:types && pnpm run lint && pnpm run test:unit && pnpm run test:integration",
     "format": "biome format --write .",
     "lint": "biome check .",
-    "test": "pnpm run build && pnpm run test:run",
+    "test": "pnpm run build && pnpm run test:unit && pnpm run test:integration",
     "test:integration": "node --test test/integration/*.test.ts",
-    "test:runtime": "node --test test/node/*.test.mjs",
-    "test:run": "pnpm run test:unit && pnpm run test:integration",
-    "test:bun": "pnpm run build && bun test test/bun",
-    "test:types": "tsc -p tsconfig.type-tests.json && tsc -p tsconfig.type-tests.cjs.json",
+    "test:runtime:node": "node --test test/runtime/node/*.test.mjs",
+    "test:runtime:bun": "bun test test/runtime/bun",
+    "test:types": "tsc -p tsconfig.types.json",
     "test:unit": "node --test src/*.test.ts",
-    "typecheck": "tsc -p tsconfig.typecheck.json --noEmit && pnpm run build && tsc -p tsconfig.test.json && pnpm run test:types"
+    "typecheck": "tsc -b"
   },
   "peerDependencies": {
     "knex": "^3.0.0"

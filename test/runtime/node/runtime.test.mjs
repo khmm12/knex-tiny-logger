@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict'
 import { createRequire } from 'node:module'
 import { test } from 'node:test'
-import knexTinyLogger, { defaultLogger } from 'knex-tiny-logger'
+import knexTinyLogger, { defaultLogger, defaultQueryFormatter } from 'knex-tiny-logger'
+import { colorfulLogger } from 'knex-tiny-logger/colorful'
 import { pinoLogger } from 'knex-tiny-logger/pino'
 import { createTracer } from 'knex-tiny-logger/tracer'
 
@@ -43,6 +44,10 @@ test('esm package works in Node.js', () => {
   const knex = new FakeKnex()
   const messages = []
 
+  assert.equal(typeof knexTinyLogger, 'function')
+  assert.equal(typeof defaultLogger, 'function')
+  assert.equal(typeof defaultQueryFormatter, 'function')
+
   knexTinyLogger(knex, {
     logger: defaultLogger({
       write(message) {
@@ -69,6 +74,10 @@ test('esm subpath adapters work in Node.js', () => {
   const knex = new FakeKnex()
   const entries = []
   const ends = []
+
+  assert.equal(typeof colorfulLogger, 'function')
+  assert.equal(typeof pinoLogger, 'function')
+  assert.equal(typeof createTracer, 'function')
 
   createTracer(knex, {
     onEnd(query) {

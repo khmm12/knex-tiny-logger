@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "tsBuildInfoFile": "node_modules/.cache/tsconfig.types.tsbuildinfo"
+  },
+  "include": ["test/types/**/*.test.cts", "test/types/**/*.test.mts"]
+}
