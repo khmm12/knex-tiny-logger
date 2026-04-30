@@ -4,7 +4,7 @@
   "description": "Tiny logger for knex",
   "repository": {
     "type": "git",
-    "url": "git://github.com/khmm12/knex-tiny-logger.git"
+    "url": "https://github.com/khmm12/knex-tiny-logger.git"
   },
   "author": "Maixm Khvatalin <khmm12@gmail.com> (http://github.com/khmm12)",
   "files": [
@@ -66,6 +66,7 @@
     "lint": "biome check .",
     "test": "pnpm run build && pnpm run test:run",
     "test:integration": "node --test test/integration/*.test.ts",
+    "test:runtime": "node --test test/node/*.test.mjs",
     "test:run": "pnpm run test:unit && pnpm run test:integration",
     "test:bun": "pnpm run build && bun test test/bun",
     "test:types": "tsc -p tsconfig.type-tests.json && tsc -p tsconfig.type-tests.cjs.json",
