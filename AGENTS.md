@@ -17,6 +17,7 @@
 - Keep this a dual package: ESM and CommonJS must both work.
 - Keep TypeScript declarations valid for both ESM and CJS consumers.
 - Keep `sideEffects: false` unless a real package-level side effect is introduced.
+- Mark safe top-level helper initializers with pure pragmas, for example `/* @__PURE__ */`, so `sideEffects: false` stays effective for bundlers.
 - Keep source unit tests independent from `dist`.
 
 ## API Shape

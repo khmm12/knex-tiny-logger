@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict'
+import { Writable } from 'node:stream'
 import test from 'node:test'
+import pino from 'pino'
 import { createQueryEndEvent, createQueryErrorEvent } from '../test/helpers/events.ts'
 import { pinoLogger } from './pino-logger.ts'
 
@@ -87,4 +89,26 @@ test('pinoLogger can omit bindings', () => {
       'SQL query',
     ],
   ])
+})
+
+test('pinoLogger writes structured entries with real pino', () => {
+  const chunks: string[] = []
+  const stream = new Writable({
+    write(chunk, _encoding, callback) {
+      chunks.push(String(chunk))
+      callback()
+    },
+  })
+  const logger = pinoLogger(pino({ base: undefined, timestamp: false }, stream))
+
+  logger.onEnd?.(createQueryEndEvent())
+
+  assert.equal(chunks.length, 1)
+  assert.deepEqual(JSON.parse(chunks[0]), {
+    level: 30,
+    sql: 'select ?',
+    bindings: [1],
+    durationMs: 12.34567,
+    msg: 'SQL query',
+  })
 })

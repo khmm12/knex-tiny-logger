@@ -3,6 +3,10 @@ export interface TimingAdapter {
   duration: (startTime: unknown) => number
 }
 
+interface PerformanceLike {
+  now?: unknown
+}
+
 export const performanceTimingAdapter: TimingAdapter = {
   now() {
     return globalThis.performance.now()
@@ -22,5 +26,14 @@ export const hrtimeTimingAdapter: TimingAdapter = {
   },
 }
 
-export const timingAdapter: TimingAdapter =
-  typeof globalThis.performance?.now === 'function' ? performanceTimingAdapter : hrtimeTimingAdapter
+export function supportsPerformance(performance: PerformanceLike | null | undefined = globalThis.performance): boolean {
+  return typeof performance?.now === 'function'
+}
+
+export function selectTimingAdapter(
+  performance: PerformanceLike | null | undefined = globalThis.performance,
+): TimingAdapter {
+  return supportsPerformance(performance) ? performanceTimingAdapter : hrtimeTimingAdapter
+}
+
+export const timingAdapter: TimingAdapter = /* @__PURE__ */ selectTimingAdapter()

@@ -12,6 +12,7 @@ import type { TracerErrorEvent } from 'knex-tiny-logger/tracer'
 
 import knexTinyLogger = require('knex-tiny-logger')
 import colorful = require('knex-tiny-logger/colorful')
+import pinoFactory = require('pino')
 import pinoAdapter = require('knex-tiny-logger/pino')
 import tracer = require('knex-tiny-logger/tracer')
 
@@ -20,25 +21,36 @@ const { pinoLogger } = pinoAdapter
 const { createTracer } = tracer
 
 declare const knex: Knex
-declare const pino: PinoLikeLogger
+declare const pinoLike: PinoLikeLogger
 declare const messageWriterTarget: MessageWriterTarget
 
+// Root API
 knexTinyLogger(knex) satisfies Knex
-knexTinyLogger.defaultLogger() satisfies Logger
-knexTinyLogger.defaultLogger({ write: messageWriterTarget }) satisfies Logger
-knexTinyLogger.defaultQueryFormatter({
-  bindings: false,
-} satisfies DefaultQueryFormatterOptions) satisfies QueryFormatter
-// @ts-expect-error Tracer is available only from the tracer subpath.
-knexTinyLogger.createTracer
 knexTinyLogger(knex, {
   logger: ((message?: unknown) => void message) satisfies SimpleLogger,
   onLoggerError(event: LoggerErrorEvent) {
     event.error satisfies unknown
   },
 })
+
+// @ts-expect-error Tracer is available only from the tracer subpath.
+knexTinyLogger.createTracer
+
+// String loggers
+knexTinyLogger.defaultLogger() satisfies Logger
+knexTinyLogger.defaultLogger({ write: messageWriterTarget }) satisfies Logger
 colorfulLogger() satisfies Logger
-pinoLogger(pino) satisfies Logger
+
+// Formatter
+knexTinyLogger.defaultQueryFormatter({
+  bindings: false,
+} satisfies DefaultQueryFormatterOptions) satisfies QueryFormatter
+
+// Pino adapter
+pinoLogger(pinoLike) satisfies Logger
+pinoLogger(pinoFactory()) satisfies Logger
+
+// Tracer
 createTracer(knex, {
   onTracerError(event: TracerErrorEvent) {
     event.error satisfies unknown
