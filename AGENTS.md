@@ -17,6 +17,7 @@
 - Keep this a dual package: ESM and CommonJS must both work.
 - Keep TypeScript declarations valid for both ESM and CJS consumers.
 - Keep `sideEffects: false` unless a real package-level side effect is introduced.
+- Keep source unit tests independent from `dist`.
 
 ## API Shape
 
@@ -25,6 +26,10 @@
 - Keep SQL formatting inside string loggers such as `defaultLogger` and `colorfulLogger`.
 - Keep structured loggers such as `pinoLogger` structured: send fields, not formatted SQL strings.
 - Prefer separate subpath exports for optional integrations.
+
+## Verification
+
+Use the smallest useful check for ordinary changes. Run tarball smoke tests only before releases or when package boundaries change: exports, build output, type declarations, package metadata, or runtime compatibility.
 
 ## Commits
 
