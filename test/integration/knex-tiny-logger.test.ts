@@ -113,6 +113,43 @@ test('knexTinyLogger reports logger errors', () => {
   assert.deepEqual(loggerErrors, [loggerError])
 })
 
+test('knexTinyLogger wires start, error, and logger error fallback hooks', () => {
+  const knex = createFakeKnex()
+  const loggerError = new Error('logger failed')
+  const handlerError = new Error('handler failed')
+  const startEvents: unknown[] = []
+  const consoleErrors: unknown[][] = []
+  const originalError = console.error
+
+  console.error = (...args: unknown[]) => {
+    consoleErrors.push(args)
+  }
+
+  try {
+    knexTinyLogger(knex, {
+      logger: {
+        onStart(event) {
+          startEvents.push(event)
+        },
+        onError() {
+          throw loggerError
+        },
+      },
+      onLoggerError() {
+        throw handlerError
+      },
+    })
+
+    knex.emit('query', { __knexQueryUid: 'query-1', sql: 'select broken' })
+    knex.emit('query-error', new Error('query failed'), { __knexQueryUid: 'query-1' })
+  } finally {
+    console.error = originalError
+  }
+
+  assert.equal(startEvents.length, 1)
+  assert.deepEqual(consoleErrors, [[handlerError]])
+})
+
 test('createTracer receives real knex query responses', async () => {
   const knex = createKnex({
     client: 'sqlite3',

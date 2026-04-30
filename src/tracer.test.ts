@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict'
+import { EventEmitter } from 'node:events'
 import test from 'node:test'
+import type { Knex } from 'knex'
 import { createFakeKnex } from '../test/helpers/fake-knex.ts'
 import { createTracer } from './tracer.ts'
 import type { QueryStartEvent, TracerQueryEndEvent, TracerQueryErrorEvent } from './types.ts'
@@ -103,4 +105,83 @@ test('createTracer ignores tracer errors by default', () => {
     knex.emit('query', { __knexQueryUid: 'query-1', sql: 'select 1' })
     knex.emit('query-response', [], { __knexQueryUid: 'query-1' })
   })
+})
+
+test('createTracer supports queries without knex ids', () => {
+  const knex = createFakeKnex()
+  const query = { sql: 'select ?', bindings: [1] }
+  const startEvents: QueryStartEvent[] = []
+  const endEvents: TracerQueryEndEvent[] = []
+
+  createTracer(knex, {
+    onStart(event) {
+      startEvents.push(event)
+    },
+    onEnd(event) {
+      endEvents.push(event)
+    },
+  })
+
+  knex.emit('query', query)
+  knex.emit('query-response', [], query)
+
+  assert.equal(startEvents.length, 1)
+  assert.equal(startEvents[0].queryId, 'anonymous:1')
+  assert.equal(endEvents.length, 1)
+  assert.equal(endEvents[0].queryId, 'anonymous:1')
+})
+
+test('createTracer normalizes non-object query payloads', () => {
+  const knex = createFakeKnex()
+  const startEvents: QueryStartEvent[] = []
+
+  createTracer(knex, {
+    onStart(event) {
+      startEvents.push(event)
+    },
+  })
+
+  knex.emit('query', 'select 1')
+
+  assert.equal(startEvents.length, 1)
+  assert.equal(startEvents[0].queryId, 'anonymous:1')
+  assert.equal(startEvents[0].sql, '')
+})
+
+test('createTracer swallows tracer error handler failures', () => {
+  const knex = createFakeKnex()
+
+  createTracer(knex, {
+    onEnd() {
+      throw new Error('logger failed')
+    },
+    onTracerError() {
+      throw new Error('tracer failed')
+    },
+  })
+
+  assert.doesNotThrow(() => {
+    knex.emit('query', { __knexQueryUid: 'query-1', sql: 'select 1' })
+    knex.emit('query-response', [], { __knexQueryUid: 'query-1' })
+  })
+})
+
+test('createTracer disposes with removeListener when off is unavailable', () => {
+  const emitter = new EventEmitter()
+  const knex = {
+    emit: emitter.emit.bind(emitter),
+    on: emitter.on.bind(emitter),
+    removeListener: emitter.removeListener.bind(emitter),
+  } as unknown as Knex & Pick<EventEmitter, 'emit'>
+  const startEvents: QueryStartEvent[] = []
+  const tracer = createTracer(knex, {
+    onStart(event) {
+      startEvents.push(event)
+    },
+  })
+
+  tracer.dispose()
+  knex.emit('query', { __knexQueryUid: 'query-1', sql: 'select 1' })
+
+  assert.equal(startEvents.length, 0)
 })

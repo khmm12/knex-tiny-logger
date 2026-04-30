@@ -30,6 +30,58 @@ test('defaultQueryFormatter formats bindings through knex raw queries', () => {
   )
 })
 
+test('defaultQueryFormatter returns raw SQL when bindings are empty', () => {
+  const formatter = defaultQueryFormatter()
+  const knex = createFakeKnex()
+
+  assert.equal(
+    formatter({
+      knex,
+      sql: 'select 1',
+      bindings: null,
+    }),
+    'select 1',
+  )
+  assert.equal(
+    formatter({
+      knex,
+      sql: 'select 1',
+      bindings: [],
+    }),
+    'select 1',
+  )
+  assert.equal(
+    formatter({
+      knex,
+      sql: 'select 1',
+      bindings: {},
+    }),
+    'select 1',
+  )
+})
+
+test('defaultQueryFormatter formats named and scalar bindings', () => {
+  const formatter = defaultQueryFormatter()
+  const knex = createFakeKnex()
+
+  assert.equal(
+    formatter({
+      knex,
+      sql: 'select :id',
+      bindings: { id: 1 },
+    }),
+    'select :id -- {"id":1}',
+  )
+  assert.equal(
+    formatter({
+      knex,
+      sql: 'select ?',
+      bindings: 1,
+    }),
+    'select ? -- 1',
+  )
+})
+
 test('defaultQueryFormatter falls back to raw SQL when formatting fails', () => {
   const formatter = defaultQueryFormatter()
 
