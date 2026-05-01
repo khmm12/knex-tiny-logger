@@ -70,6 +70,22 @@ knexTinyLogger(knex, {
 })
 ```
 
+The built-in formatter is also exported if you want the same SQL formatting in a custom logger:
+
+```ts
+import { defaultQueryFormatter } from 'knex-tiny-logger'
+
+const formatQuery = defaultQueryFormatter()
+
+knexTinyLogger(knex, {
+  logger: {
+    onEnd(query) {
+      console.log(formatQuery(query), query.durationMs)
+    },
+  },
+})
+```
+
 `write` can be a function or a stream-like target:
 
 ```ts
