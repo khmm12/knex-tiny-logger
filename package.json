@@ -85,7 +85,7 @@
     "typecheck": "tsc -b"
   },
   "peerDependencies": {
-    "knex": "^3.0.0"
+    "knex": "^3"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.13",
