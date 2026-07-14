@@ -139,8 +139,6 @@ export type StringLoggerOptions = StringLoggerBaseOptions &
 
 /** Options accepted by `defaultLogger`. */
 export type DefaultLoggerOptions = StringLoggerOptions
-/** Options accepted by `colorfulLogger`; same formatting options as `defaultLogger`. */
-export type ColorfulLoggerOptions = StringLoggerOptions
 
 /** Options for `createTracer`. */
 export interface CreateTracerOptions extends TracerHooks {

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { createRequire } from 'node:module'
 import { test } from 'node:test'
 import knexTinyLogger, { defaultLogger, defaultQueryFormatter } from 'knex-tiny-logger'
-import { colorfulLogger } from 'knex-tiny-logger/colorful'
+import { colorfulLogger, colorfulSyntaxFormatter, colorfulSyntaxThemes, colorizeSql } from 'knex-tiny-logger/colorful'
 import { pinoLogger } from 'knex-tiny-logger/pino'
 import { createTracer } from 'knex-tiny-logger/tracer'
 
@@ -76,6 +76,9 @@ test('esm subpath adapters work in Node.js', () => {
   const ends = []
 
   assert.equal(typeof colorfulLogger, 'function')
+  assert.equal(typeof colorfulSyntaxFormatter, 'function')
+  assert.equal(typeof colorfulSyntaxThemes.dracula.extend, 'function')
+  assert.equal(typeof colorizeSql, 'function')
   assert.equal(typeof pinoLogger, 'function')
   assert.equal(typeof createTracer, 'function')
 
@@ -112,9 +115,46 @@ test('esm subpath adapters work in Node.js', () => {
   assert.equal(typeof entries[0].durationMs, 'number')
 })
 
+test('esm colorful highlight works in Node.js', () => {
+  const knex = new FakeKnex()
+  const messages = []
+
+  knexTinyLogger(knex, {
+    logger: colorfulLogger({
+      highlight: true,
+      theme: colorfulSyntaxThemes.default.extend({ keyword: false }),
+      formatter(query) {
+        return query.sql
+      },
+      write(message) {
+        messages.push(message)
+      },
+    }),
+  })
+
+  const query = {
+    __knexQueryUid: 'query-3',
+    sql: 'select count(*) from users',
+    bindings: [],
+  }
+
+  knex.emit('query', query)
+  knex.emit('query-response', [{ value: 1 }], query)
+
+  assert.equal(messages.length, 1)
+  assert.match(messages[0], /SQL \(/)
+  assert.equal(messages[0].includes('select'), true)
+  assert.equal(messages[0].includes('\x1b[36mcount\x1b[0m'), true)
+})
+
 test('commonjs package entrypoint works in Node.js', () => {
   const knexTinyLoggerCjs = require('knex-tiny-logger')
-  const { colorfulLogger } = require('knex-tiny-logger/colorful')
+  const {
+    colorfulLogger,
+    colorfulSyntaxFormatter,
+    colorfulSyntaxThemes,
+    colorizeSql,
+  } = require('knex-tiny-logger/colorful')
   const { pinoLogger } = require('knex-tiny-logger/pino')
   const { createTracer } = require('knex-tiny-logger/tracer')
 
@@ -123,6 +163,9 @@ test('commonjs package entrypoint works in Node.js', () => {
   assert.equal(knexTinyLoggerCjs.createTracer, undefined)
   assert.equal(typeof knexTinyLoggerCjs.defaultLogger, 'function')
   assert.equal(typeof colorfulLogger, 'function')
+  assert.equal(typeof colorfulSyntaxFormatter, 'function')
+  assert.equal(typeof colorfulSyntaxThemes.dracula.extend, 'function')
+  assert.equal(typeof colorizeSql, 'function')
   assert.equal(typeof pinoLogger, 'function')
   assert.equal(typeof createTracer, 'function')
 })
