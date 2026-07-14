@@ -5,5 +5,5 @@
     "noEmit": true,
     "tsBuildInfoFile": "node_modules/.cache/tsconfig.tooling.tsbuildinfo"
   },
-  "files": ["build.config.ts"]
+  "files": ["tsdown.config.ts"]
 }
