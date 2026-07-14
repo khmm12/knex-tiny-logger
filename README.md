@@ -126,12 +126,20 @@ knexTinyLogger(knex, {
 })
 ```
 
-`colorfulSyntaxThemes.default` is a 16-color ANSI theme: it adapts to your terminal's
-palette and is used when no theme is given. The named themes are fixed 24-bit truecolor
-(they need a truecolor-capable terminal) — dark: `dracula`, `nord`, `monokai`, `oneDark`,
-`solarizedDark`, `tokyoNight`, `catppuccinMocha`; light: `solarizedLight`, `githubLight`,
-`oneLight`, `catppuccinLatte`. Extend a theme to override token colors with raw ANSI
-strings, or use `false` to disable a token color:
+#### Themes
+
+`colorfulSyntaxThemes.default` is used when no theme is given. It's a 16-color ANSI theme
+that adapts to your terminal's palette, so it works everywhere.
+
+The named themes are fixed 24-bit truecolor and need a truecolor-capable terminal:
+
+- **Dark** — `dracula`, `nord`, `monokai`, `oneDark`, `solarizedDark`, `tokyoNight`, `catppuccinMocha`
+- **Light** — `solarizedLight`, `githubLight`, `oneLight`, `catppuccinLatte`
+
+#### Customizing a theme
+
+Call `.extend()` to override individual token colors with raw ANSI strings, or pass `false`
+to leave a token uncolored:
 
 ```ts
 knexTinyLogger(knex, {
