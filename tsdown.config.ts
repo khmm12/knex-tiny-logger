@@ -6,6 +6,8 @@ export default defineConfig({
   entry: ['src/index.ts', 'src/colorful.ts', 'src/pino.ts', 'src/tracer.ts'],
   format: ['esm', 'cjs'],
   dts: { build: true },
+  publint: true,
+  attw: { profile: 'node16' },
   outputOptions(options, format) {
     // Keep the CJS require() value callable while still exposing the named
     // exports, e.g. `const knexTinyLogger = require('knex-tiny-logger')` stays

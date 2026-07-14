@@ -4,7 +4,7 @@
   "description": "Tiny logger for knex",
   "repository": {
     "type": "git",
-    "url": "https://github.com/khmm12/knex-tiny-logger.git"
+    "url": "git+https://github.com/khmm12/knex-tiny-logger.git"
   },
   "author": "Maixm Khvatalin <khmm12@gmail.com> (http://github.com/khmm12)",
   "files": [
@@ -73,7 +73,7 @@
   "sideEffects": false,
   "scripts": {
     "build": "tsdown",
-    "check": "pnpm run build && pnpm run typecheck && pnpm run test:types && pnpm run test:types:published && pnpm run lint && pnpm run test:unit && pnpm run test:integration",
+    "check": "pnpm run build && pnpm run typecheck && pnpm run test:types && pnpm run lint && pnpm run test:unit && pnpm run test:integration",
     "format": "biome format --write .",
     "lint": "biome check .",
     "test": "pnpm run build && pnpm run test:unit && pnpm run test:integration",
@@ -81,7 +81,6 @@
     "test:runtime:node": "node --test test/runtime/node/*.test.mjs",
     "test:runtime:bun": "bun test test/runtime/bun",
     "test:types": "tsc -p tsconfig.types.json",
-    "test:types:published": "attw --pack . --profile node16",
     "test:unit": "node --test src/*.test.ts",
     "typecheck": "tsc -b"
   },
@@ -89,12 +88,13 @@
     "knex": "^3"
   },
   "devDependencies": {
-    "@arethetypeswrong/cli": "^0.18.5",
+    "@arethetypeswrong/core": "^0.18.5",
     "@biomejs/biome": "^2.5.3",
     "@types/node": "^24.13.3",
     "@typescript/native": "npm:typescript@^7.0.2",
     "knex": "^3.3.0",
     "pino": "^10.3.1",
+    "publint": "^0.3.21",
     "sqlite3": "^6.0.1",
     "tsdown": "^0.22.7",
     "typescript": "npm:@typescript/typescript6@^6.0.2"
