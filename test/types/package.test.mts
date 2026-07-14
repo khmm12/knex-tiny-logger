@@ -15,7 +15,13 @@ import knexTinyLogger, {
   type SimpleLogger,
   type StringLoggerOptions,
 } from 'knex-tiny-logger'
-import { colorfulLogger } from 'knex-tiny-logger/colorful'
+import type {
+  ColorfulLoggerOptions,
+  ColorfulSyntaxColor,
+  ColorfulSyntaxTheme,
+  ColorfulSyntaxThemeInput,
+} from 'knex-tiny-logger/colorful'
+import { colorfulLogger, colorfulSyntaxFormatter, colorfulSyntaxThemes, colorizeSql } from 'knex-tiny-logger/colorful'
 import type { PinoLikeLogger, PinoLoggerOptions } from 'knex-tiny-logger/pino'
 import { pinoLogger } from 'knex-tiny-logger/pino'
 import type { TracerErrorEvent, TracerQueryEndEvent } from 'knex-tiny-logger/tracer'
@@ -84,6 +90,29 @@ const pinoOptions: PinoLoggerOptions = {
   errorMessage: 'SQL query failed',
 }
 
+const syntaxColor: ColorfulSyntaxColor = false
+
+const syntaxThemeInput: ColorfulSyntaxThemeInput = {
+  keyword: '\x1b[35m',
+  fn: syntaxColor,
+}
+
+const syntaxTheme: ColorfulSyntaxTheme = colorfulSyntaxThemes.dracula.extend({
+  keyword: false,
+  fn: '\x1b[31m',
+  number: '\x1b[32m',
+  string: '\x1b[32m',
+  special: '\x1b[33m',
+  bracket: '\x1b[33m',
+  comment: '\x1b[2m\x1b[90m',
+  clear: '\x1b[0m',
+})
+
+const syntaxOptions: ColorfulLoggerOptions = {
+  highlight: true,
+  theme: syntaxTheme,
+}
+
 // Root API
 knexTinyLogger(knex)
 knexTinyLogger(knex, options) satisfies Knex
@@ -137,6 +166,50 @@ defaultLogger({
 colorfulLogger() satisfies Logger
 colorfulLogger({ write: simpleLogger }) satisfies Logger
 colorfulLogger({ write: messageWriterTarget }) satisfies Logger
+colorfulLogger({ highlight: true }) satisfies Logger
+colorfulLogger({ highlight: true, theme: syntaxThemeInput }) satisfies Logger
+colorfulLogger(syntaxOptions) satisfies Logger
+colorfulLogger({ highlight: true, theme: syntaxThemeInput, write: messageWriter }) satisfies Logger
+
+// @ts-expect-error `theme` applies only in highlight mode.
+colorfulLogger({ theme: syntaxThemeInput })
+
+colorfulLogger({
+  highlight: true,
+  formatter(event) {
+    event.sql satisfies string
+
+    return event.sql
+  },
+  theme: {
+    clear: '\x1b[0m',
+  },
+}) satisfies Logger
+
+colorfulLogger({
+  // @ts-expect-error the theme option takes objects, not theme names.
+  theme: 'dark',
+})
+
+colorfulLogger({
+  // @ts-expect-error the theme option takes objects, not a separate colors option.
+  colors: {
+    keyword: '\x1b[34m',
+  },
+})
+
+colorfulLogger({
+  theme: {
+    // @ts-expect-error use `fn` for SQL functions.
+    function: '\x1b[31m',
+  },
+})
+
+colorizeSql('select 1') satisfies string
+colorizeSql('select 1', { theme: colorfulSyntaxThemes.dracula.extend({ keyword: false }) }) satisfies string
+colorfulSyntaxFormatter(defaultQueryFormatter(), {
+  theme: colorfulSyntaxThemes.solarizedLight.extend({ fn: false }).extend({ keyword: '\x1b[35m' }),
+}) satisfies QueryFormatter
 
 // @ts-expect-error bindings belongs only to the default string formatter path.
 const _invalidLoggerOptions: StringLoggerOptions = {

@@ -96,10 +96,12 @@ knexTinyLogger(knex, {
 
 ## Colorful Logs
 
-The colorful logger is the same string logger experience, with output colored by query state.
-It supports the same `bindings`, `formatter`, and `write` options as `defaultLogger`.
+The colorful logger is the same string logger experience, with output colored by query
+state. It supports the same `bindings`, `formatter`, and `write` options as `defaultLogger`,
+and has no extra runtime dependencies.
 
-Successful SQL is cyan; failed SQL is red. The message shape otherwise matches `defaultLogger`.
+By default the whole message is colored by state: the `SQL` / `SQL ERROR` label and the SQL
+body are cyan for successful queries and red for failed ones.
 
 ```ts
 import knexTinyLogger from 'knex-tiny-logger'
@@ -107,6 +109,50 @@ import { colorfulLogger } from 'knex-tiny-logger/colorful'
 
 knexTinyLogger(knex, {
   logger: colorfulLogger(),
+})
+```
+
+### Syntax highlighting
+
+Set `highlight: true` to syntax-highlight the SQL body instead. The label still carries the
+query state (cyan or red); the body's tokens are colored by an ANSI theme. `formatter`, when
+provided, controls the SQL string before highlighting is applied.
+
+```ts
+import { colorfulLogger, colorfulSyntaxThemes } from 'knex-tiny-logger/colorful'
+
+knexTinyLogger(knex, {
+  logger: colorfulLogger({ highlight: true, theme: colorfulSyntaxThemes.dracula }),
+})
+```
+
+`colorfulSyntaxThemes.default` is a 16-color ANSI theme: it adapts to your terminal's
+palette and is used when no theme is given. The named themes are fixed 24-bit truecolor
+(they need a truecolor-capable terminal) — dark: `dracula`, `nord`, `monokai`, `oneDark`,
+`solarizedDark`, `tokyoNight`, `catppuccinMocha`; light: `solarizedLight`, `githubLight`,
+`oneLight`, `catppuccinLatte`. Extend a theme to override token colors with raw ANSI
+strings, or use `false` to disable a token color:
+
+```ts
+knexTinyLogger(knex, {
+  logger: colorfulLogger({
+    highlight: true,
+    theme: colorfulSyntaxThemes.dracula.extend({
+      keyword: false,
+      fn: '\x1b[31m',
+    }),
+  }),
+})
+```
+
+You can also reuse the same syntax coloring in custom formatters:
+
+```ts
+import { defaultQueryFormatter } from 'knex-tiny-logger'
+import { colorfulSyntaxFormatter, colorfulSyntaxThemes } from 'knex-tiny-logger/colorful'
+
+const formatter = colorfulSyntaxFormatter(defaultQueryFormatter(), {
+  theme: colorfulSyntaxThemes.solarizedLight,
 })
 ```
 

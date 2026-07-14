@@ -1,5 +1,6 @@
 import { expect, test } from 'bun:test'
 import knexTinyLogger, { defaultLogger } from 'knex-tiny-logger'
+import { colorfulLogger, colorfulSyntaxThemes } from 'knex-tiny-logger/colorful'
 import { pinoLogger } from 'knex-tiny-logger/pino'
 import { createTracer } from 'knex-tiny-logger/tracer'
 
@@ -67,6 +68,7 @@ test('subpath adapters work in the Bun runtime', () => {
   const knex = new FakeKnex()
   const entries: Record<string, unknown>[] = []
   const ends: unknown[] = []
+  const messages: string[] = []
 
   createTracer(knex as never, {
     onEnd(query) {
@@ -81,6 +83,19 @@ test('subpath adapters work in the Bun runtime', () => {
       },
       error(entry) {
         entries.push(entry)
+      },
+    }),
+  })
+
+  knexTinyLogger(knex as never, {
+    logger: colorfulLogger({
+      highlight: true,
+      theme: colorfulSyntaxThemes.default,
+      formatter(query) {
+        return query.sql
+      },
+      write(message) {
+        messages.push(message)
       },
     }),
   })
@@ -101,4 +116,6 @@ test('subpath adapters work in the Bun runtime', () => {
     bindings: [2],
   })
   expect(typeof entries[0]?.durationMs).toBe('number')
+  expect(messages).toHaveLength(1)
+  expect(messages[0]).toContain('\x1b[35mselect\x1b[0m')
 })
