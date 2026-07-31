@@ -4,6 +4,7 @@ import type {
   Logger,
   LoggerErrorEvent,
   MessageWriterTarget,
+  QueryData,
   QueryFormatter,
   SimpleLogger,
 } from 'knex-tiny-logger'
@@ -98,6 +99,14 @@ pinoLogger(pinoLike) satisfies Logger
 pinoLogger(pinoFactory()) satisfies Logger
 
 // Tracer
+const queryData: QueryData = {
+  sql: 'select 1',
+}
+queryData.sql satisfies string
+
+// @ts-expect-error Knex query data always includes SQL text.
+const _invalidQueryData: QueryData = {}
+
 createTracer(knex, {
   onTracerError(event: TracerErrorEvent) {
     event.error satisfies unknown
