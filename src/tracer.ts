@@ -26,7 +26,8 @@ type KnexWithEvents = Knex & {
  * Attach low-level query tracing hooks to a Knex instance.
  *
  * The tracer exposes query lifecycle events with duration, SQL, bindings, and
- * errors.
+ * errors. Knex transaction control statements are excluded because they do not
+ * emit complete query lifecycles.
  *
  * Hook errors are caught and passed to `onTracerError`, which is a no-op by
  * default.
@@ -61,18 +62,19 @@ export function createTracer(knex: Knex, options: CreateTracerOptions = {}): Tra
   const { onStart, onEnd, onError, onTracerError = noopTracerErrorHandler } = options
   const knexWithEvents = knex as KnexWithEvents
   const queries = new Map<string, ActiveQuery>()
-  const anonymousQueryIds = new WeakMap<object, string>()
+  const anonymousQueryIds = new WeakMap<QueryData, string>()
   let nextAnonymousQueryId = 0
 
   const handleQuery = (query: unknown) => {
-    const queryData = normalizeQueryData(query)
-    const queryId = getQueryId(queryData)
+    if (!isQueryData(query) || isTransactionControlQuery(query)) return
+
+    const queryId = createQueryId(query)
     const event: ActiveQuery = {
       knex,
       queryId,
-      sql: queryData.sql ?? '',
-      bindings: queryData.bindings,
-      query: queryData,
+      sql: query.sql,
+      bindings: query.bindings,
+      query,
       startedAt: new Date(),
       startTime: timingAdapter.now(),
     }
@@ -102,14 +104,14 @@ export function createTracer(knex: Knex, options: CreateTracerOptions = {}): Tra
   }
 
   function finishQuery(query: unknown, handle: (event: TracerQueryFinishEvent) => void) {
-    const queryId = getQueryId(normalizeQueryData(query))
+    if (!isQueryData(query) || isTransactionControlQuery(query)) return
+
+    const queryId = findQueryId(query)
+    if (queryId == null) return
+
     const activeQuery = queries.get(queryId)
-
     queries.delete(queryId)
-
-    if (!activeQuery) {
-      return
-    }
+    if (activeQuery == null) return
 
     const baseEvent = {
       ...toStartEvent(activeQuery),
@@ -119,10 +121,8 @@ export function createTracer(knex: Knex, options: CreateTracerOptions = {}): Tra
     handle(baseEvent)
   }
 
-  function getQueryId(query: QueryData): string {
-    if (query.__knexQueryUid != null) {
-      return String(query.__knexQueryUid)
-    }
+  function createQueryId(query: QueryData): string {
+    if (query.__knexQueryUid != null) return String(query.__knexQueryUid)
 
     let anonymousQueryId = anonymousQueryIds.get(query)
 
@@ -133,6 +133,23 @@ export function createTracer(knex: Knex, options: CreateTracerOptions = {}): Tra
     }
 
     return anonymousQueryId
+  }
+
+  function findQueryId(query: QueryData): string | undefined {
+    if (query.__knexQueryUid != null) return String(query.__knexQueryUid)
+
+    const queryId = anonymousQueryIds.get(query)
+    if (queryId != null) return queryId
+
+    // Knex schema queries omit __knexQueryUid and copy the query object before
+    // emitting query-response. Match the stable fields retained by that copy.
+    for (const [activeQueryId, activeQuery] of queries) {
+      if (isSameAnonymousQuery(activeQuery.query, query)) {
+        return activeQueryId
+      }
+    }
+
+    return undefined
   }
 
   function handleTracerError(handle: () => void) {
@@ -152,12 +169,34 @@ export function createTracer(knex: Knex, options: CreateTracerOptions = {}): Tra
   }
 }
 
-function normalizeQueryData(query: unknown): QueryData {
-  if (query && typeof query === 'object') {
-    return query as QueryData
-  }
+function isSameAnonymousQuery(started: QueryData, finished: QueryData): boolean {
+  return (
+    started.__knexQueryUid == null &&
+    started.sql === finished.sql &&
+    started.bindings === finished.bindings &&
+    started.__knexUid === finished.__knexUid &&
+    started.__knexTxId === finished.__knexTxId
+  )
+}
 
-  return {}
+function isQueryData(query: unknown): query is QueryData {
+  return query != null && typeof query === 'object' && 'sql' in query && typeof query.sql === 'string'
+}
+
+function isTransactionControlQuery(query: QueryData): boolean {
+  // Knex runs these outside Runner and does not emit matching successful
+  // query-response events, so they cannot form a complete query lifecycle.
+  return query.__knexQueryUid == null && isKnownTransactionControlSql(query.sql)
+}
+
+function isKnownTransactionControlSql(sql: string): boolean {
+  const statement = sql.trim().replace(/;$/, '').trim()
+
+  if (/^(?:BEGIN|COMMIT|ROLLBACK)$/i.test(statement)) return true
+  if (/^BEGIN(?:\s+TRANSACTION)?\s+(?:ISOLATION\s+LEVEL\s+.+|READ\s+ONLY)$/i.test(statement)) return true
+  if (/^SET\s+TRANSACTION\s+.+$/i.test(statement)) return true
+  if (/^(?:SAVEPOINT|RELEASE\s+SAVEPOINT|ROLLBACK\s+TO\s+SAVEPOINT)\s+\S+$/i.test(statement)) return true
+  return /^SAVE\s+TRANSACTION(?:\s+\[[^\]]+\])?$|^ROLLBACK\s+TRANSACTION$/i.test(statement)
 }
 
 function toStartEvent(query: ActiveQuery): QueryStartEvent {

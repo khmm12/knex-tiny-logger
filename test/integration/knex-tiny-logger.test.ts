@@ -113,6 +113,29 @@ describe('defaultQueryFormatter', () => {
 })
 
 describe('createTracer', () => {
+  it('receives real knex schema query responses', async () => {
+    const knex = createSqliteKnex()
+    const endEvents: TracerQueryEndEvent[] = []
+    const tracer = createTracer(knex, {
+      onEnd(event) {
+        endEvents.push(event)
+      },
+    })
+
+    try {
+      await knex.schema.createTable('users', (table) => {
+        table.increments('id')
+      })
+
+      assert.equal(endEvents.length, 1)
+      assert.match(endEvents[0].sql, /create table `users`/)
+      assert.equal(endEvents[0].queryId, 'anonymous:1')
+    } finally {
+      tracer.dispose()
+      await knex.destroy()
+    }
+  })
+
   it('receives real knex query responses', async () => {
     const knex = createSqliteKnex()
     const endEvents: TracerQueryEndEvent[] = []
@@ -153,6 +176,44 @@ describe('createTracer', () => {
       assert.match(event.sql, /missing_table/)
       assert.ok(event.durationMs >= 0)
       assert.ok('error' in event)
+    } finally {
+      tracer.dispose()
+      await knex.destroy()
+    }
+  })
+
+  it('emits paired lifecycle events for queries inside transactions', async () => {
+    const knex = createSqliteKnex()
+    const startedQueries: Array<{ queryId: string; sql: string }> = []
+    const finishedQueryIds: string[] = []
+    const tracer = createTracer(knex, {
+      onStart(event) {
+        startedQueries.push({ queryId: event.queryId, sql: event.sql })
+      },
+      onEnd(event) {
+        finishedQueryIds.push(event.queryId)
+      },
+    })
+
+    try {
+      await knex.transaction(async (trx) => {
+        await trx.schema.createTable('users', (table) => {
+          table.increments('id')
+        })
+        await trx.raw('select ? as value', [1])
+        await trx.transaction(async (nested) => {
+          await nested.raw('select ? as value', [2])
+        })
+      })
+
+      assert.equal(startedQueries.length, 3)
+      assert.match(startedQueries[0].sql, /create table `users`/)
+      assert.equal(startedQueries[1].sql, 'select ? as value')
+      assert.equal(startedQueries[2].sql, 'select ? as value')
+      assert.deepEqual(
+        finishedQueryIds,
+        startedQueries.map((query) => query.queryId),
+      )
     } finally {
       tracer.dispose()
       await knex.destroy()

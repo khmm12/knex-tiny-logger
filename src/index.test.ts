@@ -37,7 +37,7 @@ test('knexTinyLogger reports logger errors', () => {
   })
 
   knex.emit('query', { __knexQueryUid: 'query-1', sql: 'select ?', bindings: [1] })
-  knex.emit('query-response', [], { __knexQueryUid: 'query-1' })
+  knex.emit('query-response', [], { __knexQueryUid: 'query-1', sql: 'select ?' })
 
   assert.deepEqual(loggerErrors, [loggerError])
 })
@@ -66,7 +66,7 @@ test('knexTinyLogger falls back to console.error when logger error handlers thro
     })
 
     knex.emit('query', { __knexQueryUid: 'query-1', sql: 'select broken' })
-    knex.emit('query-error', new Error('query failed'), { __knexQueryUid: 'query-1' })
+    knex.emit('query-error', new Error('query failed'), { __knexQueryUid: 'query-1', sql: 'select broken' })
   } finally {
     console.error = originalError
   }

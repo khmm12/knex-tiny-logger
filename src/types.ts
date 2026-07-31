@@ -38,7 +38,9 @@ export interface DefaultQueryFormatterOptions {
 /** Raw query object received from Knex events. */
 export interface QueryData {
   __knexQueryUid?: string | number
-  sql?: string
+  __knexUid?: string
+  __knexTxId?: string
+  sql: string
   bindings?: unknown
   [key: string]: unknown
 }

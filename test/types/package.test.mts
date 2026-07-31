@@ -8,6 +8,7 @@ import knexTinyLogger, {
   type LoggerErrorEvent,
   type MessageWriter,
   type MessageWriterTarget,
+  type QueryData,
   type QueryEndEvent,
   type QueryErrorEvent,
   type QueryFormatter,
@@ -225,6 +226,14 @@ defaultQueryFormatter(formatterOptions)({
 }) satisfies string
 
 // Tracer
+const queryData: QueryData = {
+  sql: 'select 1',
+}
+queryData.sql satisfies string
+
+// @ts-expect-error Knex query data always includes SQL text.
+const _invalidQueryData: QueryData = {}
+
 createTracer(knex, logger).dispose()
 createTracer(knex, {
   onEnd(event: TracerQueryEndEvent) {
