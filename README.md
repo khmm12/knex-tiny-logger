@@ -252,7 +252,83 @@ const tracer = createTracer(knex, {
 tracer.dispose()
 ```
 
-The tracer exposes query lifecycle events with duration, SQL, bindings, and errors.
+The tracer exposes complete query lifecycles with duration, SQL, bindings, and
+errors. Knex transaction control statements are ignored because they do not
+emit matching successful responses.
+
+### OpenTelemetry
+
+<details>
+<summary>Manual span bridge example</summary>
+
+Install the OpenTelemetry API and tracing SDK:
+
+```bash
+pnpm add @opentelemetry/api @opentelemetry/resources @opentelemetry/sdk-trace-base @opentelemetry/sdk-trace-node
+```
+
+Then bridge Knex query events to OpenTelemetry spans:
+
+```ts
+import { type Span, SpanKind, SpanStatusCode } from '@opentelemetry/api'
+import { resourceFromAttributes } from '@opentelemetry/resources'
+import { BatchSpanProcessor, ConsoleSpanExporter } from '@opentelemetry/sdk-trace-base'
+import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node'
+import { createTracer } from 'knex-tiny-logger/tracer'
+
+const provider = new NodeTracerProvider({
+  resource: resourceFromAttributes({ 'service.name': 'my-service' }),
+  spanProcessors: [new BatchSpanProcessor(new ConsoleSpanExporter())],
+})
+provider.register()
+
+const otelTracer = provider.getTracer('my-service')
+const spans = new Map<string, Span>()
+
+const tracer = createTracer(knex, {
+  onStart(query) {
+    spans.set(
+      query.queryId,
+      otelTracer.startSpan('postgresql', {
+        kind: SpanKind.CLIENT,
+        startTime: query.startedAt,
+        attributes: {
+          'db.system.name': 'postgresql',
+          'db.query.text': query.sql,
+        },
+      }),
+    )
+  },
+  onEnd(query) {
+    spans.get(query.queryId)?.end()
+    spans.delete(query.queryId)
+  },
+  onError(query) {
+    const span = spans.get(query.queryId)
+    if (span && query.error instanceof Error) {
+      span.recordException(query.error)
+      span.setAttribute('error.type', query.error.name)
+    }
+    span?.setStatus({ code: SpanStatusCode.ERROR })
+    span?.end()
+    spans.delete(query.queryId)
+  },
+})
+
+// During application shutdown, after outstanding queries settle:
+tracer.dispose()
+await provider.shutdown()
+```
+
+The example intentionally omits bindings because they often contain secrets or personal data.
+If raw SQL contains literals, sanitize it before recording `db.query.text`.
+Some drivers also include rendered SQL in error messages; redact `query.error` before
+`recordException` when that data is sensitive.
+
+See the [runnable SQLite example](examples/sqlite-opentelemetry.mjs). Replace
+`ConsoleSpanExporter` with an OTLP exporter to send the same spans to a collector.
+
+</details>
 
 ## License
 
